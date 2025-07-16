@@ -57,7 +57,7 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "name": "The Corner Store",
+  "name": "The Corner Stores",
   "responsibleName": "Jane Doe",
   "email": "jane.doe@example.com",
   "phone": "11999998888",

@@ -32,7 +32,6 @@ export const updateStoreController = async (
   reply: FastifyReply,
 ) => {
   const { body, user } = request
-  console.log('🚀 ~ body:', body)
   const { sub } = user
 
   await updateStore(body, sub)
