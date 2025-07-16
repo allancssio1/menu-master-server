@@ -43,17 +43,9 @@ export const changeIsActiveStoreController = async (
   request: IsActiveRequest,
   reply: FastifyReply,
 ) => {
-  try {
-    await request.jwtVerify()
-  } catch (_error) {
-    throw new Error('Unauthorized')
-  }
   const { user } = request
-  const { sub, role } = user
+  const { sub } = user
 
-  if (role !== 'ADMIN') {
-    throw new Error('Unauthorized')
-  }
   await changeActiveStore(sub)
 
   return reply.status(200).send()
@@ -78,17 +70,10 @@ export const getByIdStoreController = async (
   request: UpdateRequest,
   reply: FastifyReply,
 ) => {
-  try {
-    await request.jwtVerify()
-  } catch (_error) {
-    throw new Error('Unauthorized')
-  }
   const { user } = request
-  const { sub, role } = user
 
-  if (role !== 'ADMIN') {
-    throw new Error('Unauthorized')
-  }
+  const { sub } = user
+
   const store = await getByIdStore(sub)
 
   return reply.status(200).send({ store })
