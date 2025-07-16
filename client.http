@@ -1,0 +1,75 @@
+@baseUrl = http://localhost:3333
+@authToken = {{login.response.body.access_token}}
+
+# Health
+GET {{baseUrl}}/health
+
+###
+
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "jane.doe@example.com",
+  "password": "123456"
+}
+
+###
+
+# get store
+GET {{baseUrl}}/store
+
+###
+# get store
+GET {{baseUrl}}/store/loja-do-allan
+
+###
+
+# @name create_store 
+POST {{baseUrl}}/store
+Content-Type: application/json
+
+{
+  "cnpj": "12.345.678/0001-90",
+  "name": "The Corner Store",
+  "responsibleName": "Jane Doe",
+  "email": "jane.doe@example.com",
+  "password": "123456",
+  "confirmPassword": "123456",
+  "phone": "11999998888",
+  "address": {
+    "zipCode": "61936180",
+    "street": "Rua 118",
+    "number": "100",
+    "district": "Timbó",
+    "city": "Maracanaú",
+    "state": "CE",
+    "complement": ""
+  }
+}
+
+###
+
+# @name update_store
+PUT {{baseUrl}}/store
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "The Corner Store",
+  "responsibleName": "Jane Doe",
+  "email": "jane.doe@example.com",
+  "phone": "11999998888",
+  "address": {
+    "zipCode": "61936180",
+    "street": "Rua 118",
+    "number": "100",
+    "district": "Timbó",
+    "city": "Maracanaú",
+    "state": "CE",
+    "complement": ""
+  }
+}
+
+###
