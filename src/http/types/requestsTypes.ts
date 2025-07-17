@@ -1,5 +1,6 @@
 import type { FastifyRequest } from 'fastify'
 import type { CreateStoreType, UpdateStoreType } from './storeTypes.ts'
+import type { CreateProductType, UpdateProductType } from './productTypes.ts'
 
 export type CreateRequest = FastifyRequest<{
   Body: CreateStoreType
@@ -18,4 +19,24 @@ export type PublicDataRequest = FastifyRequest<{
 
 export type LoginRequest = FastifyRequest<{
   Body: { username: string; password: string }
+}>
+
+export type CreateProductsRequest = FastifyRequest<{
+  Body: CreateProductType[]
+}>
+
+export type UpdateProductsRequest = FastifyRequest<{
+  Body: UpdateProductType
+}>
+
+export type ListProductsBySlugStoreRequest = FastifyRequest<{
+  Params: { slug: string }
+}>
+
+export type ListProductsByStoreIdRequest = FastifyRequest<{
+  Params: { id: string }
+}>
+
+export type DeleteProductsByIdStoreRequest = FastifyRequest<{
+  Params: { id: string }
 }>
