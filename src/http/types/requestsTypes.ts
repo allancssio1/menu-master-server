@@ -22,11 +22,13 @@ export type LoginRequest = FastifyRequest<{
 }>
 
 export type CreateProductsRequest = FastifyRequest<{
-  Body: CreateProductType[]
+  Body: CreateProductType
+  Params: { slug: string }
 }>
 
 export type UpdateProductsRequest = FastifyRequest<{
   Body: UpdateProductType
+  Params: { slug: string }
 }>
 
 export type ListProductsBySlugStoreRequest = FastifyRequest<{
@@ -34,9 +36,9 @@ export type ListProductsBySlugStoreRequest = FastifyRequest<{
 }>
 
 export type ListProductsByStoreIdRequest = FastifyRequest<{
-  Params: { id: string }
+  Params: { id: string; slug: string }
 }>
 
 export type DeleteProductsByIdStoreRequest = FastifyRequest<{
-  Params: { id: string }
+  Params: { id: string; slug: string }
 }>

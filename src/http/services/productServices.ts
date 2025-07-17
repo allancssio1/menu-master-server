@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/complexity/noForEach: testando for each */
 import type {
   CreateProductType,
   ProductType,
@@ -13,8 +14,9 @@ export const createProduct = async ({
   data,
   storeId,
 }: {
-  data: CreateProductType[]
+  data: CreateProductType
   storeId: string
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: this is correct
 }) => {
   const storeFound = await db.query.stores.findFirst({
     where: (stores, { eq }) => eq(stores.id, storeId),
@@ -24,83 +26,159 @@ export const createProduct = async ({
     throw new Error('Store not found')
   }
 
-  const productsError: CreateProductType[] = []
+  const productsError: CreateProductType = []
   const productSuccess: ProductType[] = []
 
-  data &&
-    data.length > 0 &&
-    data.map(
-      async ({ price, title, description, imageUrl, amount, stoque }) => {
-        const productSlug = Slug.createSlugFromText(title)
+  if (data && data.length > 0) {
+    for (const {
+      price,
+      title,
+      description,
+      imageUrl,
+      amount,
+      stoque,
+    } of data) {
+      const productSlug = Slug.createSlugFromText(title)
 
-        const productFoundBySlug = await db.query.products.findFirst({
-          where: (p, { eq }) => eq(p.slug, productSlug.value),
+      // biome-ignore lint/nursery/noAwaitInLoop: this is correct
+      const productFoundBySlug = await db.query.products.findFirst({
+        where: (p, { eq }) => eq(p.slug, productSlug.value),
+      })
+
+      if (productFoundBySlug) {
+        productsError.push({
+          price,
+          title,
+          description,
+          imageUrl,
+          amount,
+          stoque,
         })
+        continue
+      }
 
-        if (productFoundBySlug) {
-          productsError.push({
-            price,
+      try {
+        const productCreated = await db
+          .insert(schema.products)
+          .values({
             title,
-            description,
-            imageUrl,
-            amount,
-            stoque,
+            description: description ?? null,
+            slug: productSlug.value,
+            price: ConvertPrice.inInteger({
+              rawPrice: price,
+              decimal: 2,
+            }),
+            storeId,
+            imageUrl: imageUrl ?? null,
+            amount: amount ?? 0,
+            stoque: stoque ?? false,
           })
-          return null
-        }
+          .returning()
 
-        try {
-          const productCreated = await db
-            .insert(schema.products)
-            .values({
-              title,
-              description: description ?? null,
-              slug: productSlug.value,
-              price: ConvertPrice.inInteger({
-                rawPrice: price,
-                decimal: 2,
-              }),
-              storeId,
-              imageUrl: imageUrl ?? null,
-              amount: amount ?? 0,
-              stoque: stoque ?? false,
-            })
-            .returning()
-
-          if (productCreated[0].id) {
-            productSuccess.push({
-              id: productCreated[0].id,
-              title: productCreated[0].title,
-              description: productCreated[0].description ?? '',
-              slug: productCreated[0].slug ?? '',
-              imageUrl: productCreated[0].imageUrl ?? '',
-              amount: productCreated[0].amount,
-              stoque: productCreated[0].stoque,
-              decimals: productCreated[0].decimals,
-              storeId: productCreated[0].storeId,
-              createdAt: productCreated[0].createdAt,
-              updatedAt: productCreated[0].updatedAt,
-              price: ConvertPrice.inDecimal({
-                decimal: productCreated[0].decimals,
-                rawPrice: productCreated[0].price,
-              }),
-            })
-          }
-
-          return productCreated[0]
-        } catch (_error) {
-          productsError.push({
-            price,
-            title,
-            description,
-            imageUrl,
-            amount,
-            stoque,
+        if (productCreated[0].id) {
+          productSuccess.push({
+            id: productCreated[0].id,
+            title: productCreated[0].title,
+            description: productCreated[0].description ?? '',
+            slug: productCreated[0].slug ?? '',
+            imageUrl: productCreated[0].imageUrl ?? '',
+            amount: productCreated[0].amount,
+            stoque: productCreated[0].stoque,
+            decimals: productCreated[0].decimals,
+            storeId: productCreated[0].storeId,
+            createdAt: productCreated[0].createdAt,
+            updatedAt: productCreated[0].updatedAt,
+            price: ConvertPrice.inDecimal({
+              decimal: productCreated[0].decimals,
+              rawPrice: productCreated[0].price,
+            }),
           })
-          return null
         }
-      },
-    )
+      } catch (_error) {
+        productsError.push({
+          price,
+          title,
+          description,
+          imageUrl,
+          amount,
+          stoque,
+        })
+      }
+    }
+    // data.forEach(
+    //   // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: disabled '=>'
+    //   async ({ price, title, description, imageUrl, amount, stoque }) => {
+    //     const productSlug = Slug.createSlugFromText(title)
+
+    //     const productFoundBySlug = await db.query.products.findFirst({
+    //       where: (p, { eq }) => eq(p.slug, productSlug.value),
+    //     })
+
+    //     if (productFoundBySlug) {
+    //       productsError.push({
+    //         price,
+    //         title,
+    //         description,
+    //         imageUrl,
+    //         amount,
+    //         stoque,
+    //       })
+    //       return null
+    //     }
+
+    //     try {
+    //       const productCreated = await db
+    //         .insert(schema.products)
+    //         .values({
+    //           title,
+    //           description: description ?? null,
+    //           slug: productSlug.value,
+    //           price: ConvertPrice.inInteger({
+    //             rawPrice: price,
+    //             decimal: 2,
+    //           }),
+    //           storeId,
+    //           imageUrl: imageUrl ?? null,
+    //           amount: amount ?? 0,
+    //           stoque: stoque ?? false,
+    //         })
+    //         .returning()
+
+    //       if (productCreated[0].id) {
+    //         productSuccess.push({
+    //           id: productCreated[0].id,
+    //           title: productCreated[0].title,
+    //           description: productCreated[0].description ?? '',
+    //           slug: productCreated[0].slug ?? '',
+    //           imageUrl: productCreated[0].imageUrl ?? '',
+    //           amount: productCreated[0].amount,
+    //           stoque: productCreated[0].stoque,
+    //           decimals: productCreated[0].decimals,
+    //           storeId: productCreated[0].storeId,
+    //           createdAt: productCreated[0].createdAt,
+    //           updatedAt: productCreated[0].updatedAt,
+    //           price: ConvertPrice.inDecimal({
+    //             decimal: productCreated[0].decimals,
+    //             rawPrice: productCreated[0].price,
+    //           }),
+    //         })
+    //       }
+
+    //       return productCreated[0]
+    //     } catch (_error) {
+    //       productsError.push({
+    //         price,
+    //         title,
+    //         description,
+    //         imageUrl,
+    //         amount,
+    //         stoque,
+    //       })
+    //       return null
+    //     }
+    //   },
+    // )
+  }
 
   return { productSuccess, productsError }
 }
@@ -161,7 +239,7 @@ export const getAllProductsByStore = async ({
 }: {
   storeSlug: string
 }) => {
-  const store = await db.query.products.findFirst({
+  const store = await db.query.stores.findFirst({
     where: (stores, { eq }) => eq(stores.slug, storeSlug),
   })
 

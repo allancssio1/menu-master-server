@@ -71,7 +71,7 @@ export const updateStore = async (
   data: Partial<CreateStoreType>,
   id: string,
   // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: permition
-): Promise<StoreType> => {
+) => {
   const storeFound = await db.query.stores.findFirst({
     where: (stores, { eq }) => eq(stores.id, id),
   })
@@ -153,7 +153,19 @@ export const getAllStores = async () => {
 
   return stores ?? []
 }
-export const getBySlugStore = async (slug: string) => {
+export const getBySlugStore = async (
+  slug: string,
+): Promise<
+  Omit<
+    StoreType,
+    | 'userId'
+    | 'email'
+    | 'responsibleName'
+    | 'createdAt'
+    | 'updatedAt'
+    | 'updatedAt'
+  >
+> => {
   const store = await db.query.stores.findFirst({
     where: (stores, { eq }) => eq(stores.slug, slug),
   })
@@ -163,8 +175,25 @@ export const getBySlugStore = async (slug: string) => {
   }
 
   return {
+    id: store.id,
+    isActive: store.isActive,
+    cnpj: store.cnpj,
+    name: store.name,
+    phone: store.phone,
+    slug: store.slug,
+    imageUrl: store.imageUrl ?? '',
+    accentColor: store.accentColor,
     primaryColor: store.primaryColor,
     secondaryColor: store.secondaryColor,
+    address: {
+      city: store.city,
+      district: store.district,
+      number: store.number,
+      state: store.state,
+      street: store.street,
+      zipCode: store.zipCode,
+      complement: store.complement ?? '',
+    },
   }
 }
 export const getByIdStore = async (id: string) => {

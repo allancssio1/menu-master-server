@@ -23,8 +23,9 @@ Content-Type: application/json
 GET {{baseUrl}}/store
 
 ###
+
 # @name get_store_by_slug
-GET {{baseUrl}}/store/loja-do-allan
+GET {{baseUrl}}/store/{{slug_store}}
 
 ###
 
@@ -86,3 +87,41 @@ Authorization: Bearer {{authToken}}
 # @name delete_store
 DELETE {{baseUrl}}/store
 Authorization: Bearer {{authToken}}
+
+###
+
+# @name create_products
+POST {{baseUrl}}/store/{{slug_store}}/product
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+[
+  {
+    "title": "leite da manha",
+    "description": "Pão carioquinha com ovo, queijo e presunto",
+    "price": 4.99,
+    "imageUrl": "http://cafe-da-manha.com",
+    "stoque": false,
+    "amount": 0
+  },
+  {
+    "title": "leite da tarde",
+    "description": "Pão carioquinha com ovo, queijo e presunto",
+    "price": 4.99,
+    "imageUrl": "http://cafe-da-manha.com",
+    "stoque": false,
+    "amount": 0
+  }
+]
+
+###
+
+# @name list_products
+GET {{baseUrl}}/store/{{slug_store}}/product
+
+###
+
+# @name update_product
+PUT {{baseUrl}}/product
+Authorization: Bearer {{authToken}}
+Content-Type: application/json

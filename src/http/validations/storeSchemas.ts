@@ -55,11 +55,28 @@ export const updateStoreSchema = z.object({
   }),
 })
 
-export const storeSchema = updateStoreSchema.extend({
+export const storeSchema = z.object({
   id: z.string(),
+  userId: z.string(),
+  name: z.string(),
   cnpj: z.string(),
   slug: z.string(),
-  userId: z.string(),
+  email: z.string(),
+  phone: z.string(),
+  responsibleName: z.string(),
+  address: z.object({
+    zipCode: z.string(),
+    street: z.string(),
+    number: z.string(),
+    district: z.string(),
+    city: z.string(),
+    state: z.string(),
+    complement: z.string().optional(),
+  }),
+  imageUrl: z.string().optional(),
+  primaryColor: z.string(),
+  secondaryColor: z.string(),
+  accentColor: z.string(),
   isActive: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),

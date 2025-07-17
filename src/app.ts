@@ -36,8 +36,6 @@ app.register(storeRoutes, {
 app.register(authRoutes, {
   prefix: 'auth',
 })
-app.register(productRoutes, {
-  prefix: 'product',
-})
+app.register(productRoutes)
 
 export { app }

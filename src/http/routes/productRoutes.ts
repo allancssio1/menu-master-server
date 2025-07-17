@@ -21,19 +21,36 @@ import {
 import { z } from 'zod'
 
 export const productRoutes: FastifyPluginCallbackZod = (app) => {
-  app.post<{ Body: CreateProductType[] }>(
-    '/',
+  app.post<{ Body: CreateProductType; Params: { slug: string } }>(
+    '/store/:slug/product',
     {
       onRequest: [verifyJWT, verifyUserRole('STORE')],
       schema: {
-        body: z.array(createProductSchema),
+        body: createProductSchema,
+        params: z.object({
+          slug: z.string(),
+        }),
       },
     },
     createProductController,
   )
 
+  app.put<{ Body: UpdateProductType; Params: { slug: string } }>(
+    '/store/:slug/store',
+    {
+      onRequest: [verifyJWT, verifyUserRole('STORE')],
+      schema: {
+        body: updateProductSchema,
+        params: z.object({
+          slug: z.string(),
+        }),
+      },
+    },
+    updateProductController,
+  )
+
   app.get<{ Params: { slug: string } }>(
-    '/:slug',
+    '/store/:slug/product',
     {
       schema: {
         params: z.object({
@@ -44,29 +61,19 @@ export const productRoutes: FastifyPluginCallbackZod = (app) => {
     getAllProductByStoreController,
   )
 
-  app.get<{ Params: { id: string } }>(
-    '/store/:id',
+  app.get<{ Params: { id: string; slug: string } }>(
+    '/store/:slug/store/:id',
     {
       onRequest: [verifyJWT, verifyUserRole('STORE')],
 
       schema: {
         params: z.object({
           id: z.string(),
+          slug: z.string(),
         }),
       },
     },
     getAllProductByStoreIdController,
-  )
-
-  app.put<{ Body: UpdateProductType }>(
-    '/',
-    {
-      onRequest: [verifyJWT, verifyUserRole('STORE')],
-      schema: {
-        body: updateProductSchema,
-      },
-    },
-    updateProductController,
   )
 
   app.delete<{ Params: DeleteProductType }>(
