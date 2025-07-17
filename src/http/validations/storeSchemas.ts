@@ -54,3 +54,13 @@ export const updateStoreSchema = z.object({
     complement: z.string().optional(),
   }),
 })
+
+export const storeSchema = updateStoreSchema.extend({
+  id: z.string(),
+  cnpj: z.string(),
+  slug: z.string(),
+  userId: z.string(),
+  isActive: z.boolean(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+})

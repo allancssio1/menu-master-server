@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import {
-  changeActiveStore,
+  // changeActiveStore,
   createStore,
   deleteStore,
   getAllStores,
@@ -11,7 +11,7 @@ import {
 import type {
   CreateRequest,
   DeleteRequest,
-  IsActiveRequest,
+  // IsActiveRequest,
   UpdateRequest,
   PublicDataRequest,
 } from '../types/requestsTypes.ts'
@@ -34,22 +34,23 @@ export const updateStoreController = async (
   const { body, user } = request
   const { sub } = user
 
-  await updateStore(body, sub)
+  const product = await updateStore(body, sub)
 
-  return reply.status(200).send(body)
+  return reply.status(200).send(product)
 }
 
-export const changeIsActiveStoreController = async (
-  request: IsActiveRequest,
-  reply: FastifyReply,
-) => {
-  const { user } = request
-  const { sub } = user
+// export const changeIsActiveStoreController = async (
+//   request: IsActiveRequest,
+//   reply: FastifyReply,
+// ) => {
+//   const { user } = request
+//   const { sub } = user
 
-  await changeActiveStore(sub)
+//   await changeActiveStore(sub)
 
-  return reply.status(200).send()
-}
+//   return reply.status(200).send()
+// }
+
 export const getAllStoresController = async (
   _: FastifyRequest,
   reply: FastifyReply,

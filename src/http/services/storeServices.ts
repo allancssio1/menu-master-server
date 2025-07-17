@@ -1,4 +1,4 @@
-import type { CreateStoreType } from '../types/storeTypes.ts'
+import type { CreateStoreType, StoreType } from '../types/storeTypes.ts'
 import { schema } from '../../db/schema/index.ts'
 import { db } from '../../db/conection.ts'
 import { Slug } from '../../lib/Slub.ts'
@@ -68,9 +68,10 @@ export const createStore = async (data: CreateStoreType) => {
   return store[0]
 }
 export const updateStore = async (
-  { address, phone, responsibleName, name }: Partial<CreateStoreType>,
+  data: Partial<CreateStoreType>,
   id: string,
-) => {
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: permition
+): Promise<StoreType> => {
   const storeFound = await db.query.stores.findFirst({
     where: (stores, { eq }) => eq(stores.id, id),
   })
@@ -79,9 +80,8 @@ export const updateStore = async (
     throw new Error('Store not found')
   }
 
-  if (name) {
-    const slug = Slug.createSlugFromText(name ?? storeFound.name)
-
+  const slug = Slug.createSlugFromText(data.name ?? storeFound.name)
+  if (data.name) {
     const slugAlreadyExists = await db.query.stores.findFirst({
       where: (stores, { eq }) => eq(stores.slug, slug.value),
     })
@@ -90,23 +90,48 @@ export const updateStore = async (
       throw new Error('Slug already exists')
     }
   }
+  const updatedStoreData = {
+    city: data.address?.city ?? storeFound.city,
+    district: data.address?.district ?? storeFound.district,
+    number: data.address?.number ?? storeFound.number,
+    state: data.address?.state ?? storeFound.state,
+    street: data.address?.street ?? storeFound.street,
+    zipCode: data.address?.zipCode ?? storeFound.zipCode,
+    complement: data.address?.complement ?? storeFound.complement,
+    slug: slug.value,
+    phone: data.phone ?? storeFound.phone,
+    responsibleName: data.responsibleName ?? storeFound.responsibleName,
+    name: data.name ?? storeFound.name,
+  }
 
   await db
     .update(schema.stores)
-    .set({
-      city: address?.city ?? storeFound.city,
-      district: address?.district ?? storeFound.district,
-      number: address?.number ?? storeFound.number,
-      state: address?.state ?? storeFound.state,
-      street: address?.street ?? storeFound.street,
-      zipCode: address?.zipCode ?? storeFound.zipCode,
-      complement: address?.complement ?? storeFound.complement,
-      phone: phone ?? storeFound.phone,
-      responsibleName,
-      name: name ?? storeFound.name,
-    })
+    .set(updatedStoreData)
     .where(EQ(schema.stores.id, id))
     .execute()
+
+  return {
+    id: storeFound.id,
+    isActive: storeFound.isActive,
+    userId: storeFound.userId,
+    createdAt: storeFound.createdAt,
+    updatedAt: storeFound.updatedAt,
+    responsibleName: updatedStoreData.responsibleName,
+    email: storeFound.email,
+    cnpj: storeFound.cnpj,
+    phone: updatedStoreData.phone,
+    name: updatedStoreData.name,
+    slug: updatedStoreData.slug,
+    address: {
+      city: updatedStoreData.city,
+      district: updatedStoreData.district,
+      number: updatedStoreData.number,
+      state: updatedStoreData.state,
+      street: updatedStoreData.street,
+      zipCode: updatedStoreData.zipCode,
+      complement: updatedStoreData.complement ?? '',
+    },
+  }
 }
 export const changeActiveStore = async (id: string) => {
   const storeFound = await db.query.stores.findFirst({

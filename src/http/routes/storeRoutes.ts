@@ -4,7 +4,6 @@ import {
   updateStoreSchema,
 } from '../validations/storeSchemas.ts'
 import {
-  changeIsActiveStoreController,
   createStoreController,
   deleteStoreController,
   getAllStoresController,
@@ -37,13 +36,13 @@ export const storeRoutes: FastifyPluginCallbackZod = (app) => {
     },
     updateStoreController,
   )
-  app.patch(
-    '/',
-    {
-      onRequest: [verifyJWT, verifyUserRole('STORE')],
-    },
-    changeIsActiveStoreController,
-  )
+  // app.patch(
+  //   '/',
+  //   {
+  //     onRequest: [verifyJWT, verifyUserRole('STORE')],
+  //   },
+  //   changeIsActiveStoreController,
+  // )
   app.delete(
     '/',
     {
