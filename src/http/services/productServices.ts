@@ -6,7 +6,7 @@ import type {
 } from '../types/productTypes.ts'
 import { schema } from '../../db/schema/index.ts'
 import { db } from '../../db/conection.ts'
-import { eq as EQ } from 'drizzle-orm'
+import { eq as EQ, and as AND } from 'drizzle-orm'
 import { Slug } from '../../lib/Slub.ts'
 import { ConvertPrice } from '../../lib/ConvertPrice.ts'
 
@@ -198,13 +198,18 @@ export const updateProduct = async ({
   }
 
   const productSlug = Slug.createSlugFromText(title)
-  const productFoundBySlug = await db.query.products.findFirst({
-    where: (products, { eq, and }) =>
-      and(eq(products.slug, productSlug.value), eq(products.storeId, storeId)),
-  })
+  if (title) {
+    const productFoundBySlug = await db.query.products.findFirst({
+      where: (products, { eq, and }) =>
+        and(
+          eq(products.slug, productSlug.value),
+          eq(products.storeId, storeId),
+        ),
+    })
 
-  if (productFoundBySlug) {
-    throw new Error('Product tile already exists in this store')
+    if (productFoundBySlug && productFoundBySlug.id !== id) {
+      throw new Error('Product tile already exists in this store')
+    }
   }
 
   const productFound = await db.query.products.findFirst({
@@ -301,9 +306,20 @@ export const getAllProductsByStoreId = async ({ id }: { id: string }) => {
   return products
 }
 
-export const deleteProduct = async (id: string) => {
+export const deleteProduct = async ({
+  id,
+  storeId,
+}: {
+  id: string
+  storeId: string
+}) => {
   try {
-    await db.delete(schema.stores).where(EQ(schema.stores.id, id)).execute()
+    await db
+      .delete(schema.products)
+      .where(
+        AND(EQ(schema.products.id, id), EQ(schema.products.storeId, storeId)),
+      )
+      .execute()
   } catch (_error) {
     throw new Error('Error deleting store or Store not found')
   }

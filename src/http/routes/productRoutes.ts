@@ -36,7 +36,7 @@ export const productRoutes: FastifyPluginCallbackZod = (app) => {
   )
 
   app.put<{ Body: UpdateProductType; Params: { slug: string } }>(
-    '/store/:slug/store',
+    '/store/:slug/product',
     {
       onRequest: [verifyJWT, verifyUserRole('STORE')],
       schema: {
@@ -62,7 +62,7 @@ export const productRoutes: FastifyPluginCallbackZod = (app) => {
   )
 
   app.get<{ Params: { id: string; slug: string } }>(
-    '/store/:slug/store/:id',
+    '/store/:slug/product/:id',
     {
       onRequest: [verifyJWT, verifyUserRole('STORE')],
 
@@ -77,7 +77,7 @@ export const productRoutes: FastifyPluginCallbackZod = (app) => {
   )
 
   app.delete<{ Params: DeleteProductType }>(
-    '/:id',
+    '/store/:slug/product/:id',
     {
       onRequest: [verifyJWT, verifyUserRole('STORE')],
       schema: {

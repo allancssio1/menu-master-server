@@ -64,9 +64,12 @@ export const deleteProductController = async (
   request: DeleteProductsByIdStoreRequest,
   reply: FastifyReply,
 ) => {
+  const { user } = request
+  const { sub } = user
+
   const { id } = request.params
 
-  await deleteProduct(id)
+  await deleteProduct({ id, storeId: sub })
 
   return reply.status(200).send()
 }

@@ -8,6 +8,8 @@ GET {{baseUrl}}/health
 
 ###
 
+# STORES
+
 # @name login
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
@@ -26,10 +28,11 @@ GET {{baseUrl}}/store
 
 # @name get_store_by_slug
 GET {{baseUrl}}/store/{{slug_store}}
+Content-Type: application/json
 
 ###
 
-# @name create_store 
+# @name create_store
 POST {{baseUrl}}/store
 Content-Type: application/json
 
@@ -77,18 +80,13 @@ Authorization: Bearer {{authToken}}
 
 ###
 
-# # @name active_store
-# PATCH {{baseUrl}}/store
-# Authorization: Bearer {{authToken}}
-# Content-Type: application/json
-
-###
-
 # @name delete_store
 DELETE {{baseUrl}}/store
 Authorization: Bearer {{authToken}}
 
 ###
+
+# PRODUCTS
 
 # @name create_products
 POST {{baseUrl}}/store/{{slug_store}}/product
@@ -122,6 +120,27 @@ GET {{baseUrl}}/store/{{slug_store}}/product
 ###
 
 # @name update_product
-PUT {{baseUrl}}/product
+PUT {{baseUrl}}/store/{{slug_store}}/product
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
+
+{
+  "id": "59e074c7-eadd-430c-9884-fa20ce096fc9",
+  "title": "Café da manhã",
+  "description": "Pão carioquinha com ovo, queijo e presunto",
+  "price": 4.98,
+  "stoque": true,
+  "amount": 1,
+  "imageUrl": "http://cafe-da-manha.com",
+  "storeId": "02f56094-9ab7-4d03-8867-893ba060894c",
+  "slug": "cafe-da-manha"
+}
+
+###
+
+# @name delete_product
+DELETE {{baseUrl}}/store/{{slug_store}}/product/5c523435-ebea-4ca5-9348-83635ea43ef6
+Authorization: Bearer {{authToken}}
+
+###
+
