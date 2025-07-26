@@ -1,6 +1,10 @@
-import { db } from '../../db/conection.ts'
-import { compare, hash } from 'bcryptjs'
-import { schema } from '../../db/schema/index.ts'
+import { compare } from 'bcryptjs'
+import {
+  createAccountModel,
+  findUserByUsernameModel,
+} from '../models/factories/authFactory.ts'
+import { db } from '../../db/drizzle/conection.ts'
+import type { AuthType, CreateAuthType } from '../../http/types/authTypes.ts'
 
 export const login = async ({
   password,
@@ -35,33 +39,26 @@ export const login = async ({
     : null
 }
 
-export const createAccount = async ({
-  username,
+export const createAccountService = async ({
+  isAdmin,
   password,
-  isAdmin = false,
-}: {
-  username: string
-  password: string
-  isAdmin?: boolean
-}) => {
-  const userAlreadyExists = await db.query.auth.findFirst({
-    where: (auth, { eq }) => eq(auth.username, username),
-  })
+  username,
+}: CreateAuthType): Promise<AuthType> => {
+  const userAlreadyExists = await findUserByUsernameModel(username)
 
   if (userAlreadyExists) {
     throw new Error('User already exists')
   }
 
-  const passwordHash = await hash(password, 8)
+  const user = await createAccountModel({
+    isAdmin,
+    password,
+    username,
+  })
 
-  const user = await db
-    .insert(schema.auth)
-    .values({
-      username,
-      password: passwordHash,
-      role: isAdmin ? 'ADMIN' : 'STORE',
-    })
-    .returning()
+  if (!user || (user && !user.id)) {
+    throw new Error('error creating user account')
+  }
 
-  return user[0]
+  return { ...user, password: '' }
 }

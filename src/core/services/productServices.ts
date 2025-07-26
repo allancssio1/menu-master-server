@@ -3,12 +3,12 @@ import type {
   CreateProductType,
   ProductType,
   UpdateProductType,
-} from '../types/productTypes.ts'
-import { schema } from '../../db/schema/index.ts'
-import { db } from '../../db/conection.ts'
+} from '../../http/types/productTypes.ts'
 import { eq as EQ, and as AND } from 'drizzle-orm'
 import { Slug } from '../../lib/Slub.ts'
 import { ConvertPrice } from '../../lib/ConvertPrice.ts'
+import { db } from '../../db/drizzle/conection.ts'
+import { schema } from '../../db/drizzle/schema/index.ts'
 
 export const createProduct = async ({
   data,
@@ -182,6 +182,7 @@ export const createProduct = async ({
 
   return { productSuccess, productsError }
 }
+
 export const updateProduct = async ({
   data: { id, price, title, amount, description, imageUrl, stoque },
   storeId,

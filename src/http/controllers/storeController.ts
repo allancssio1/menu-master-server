@@ -7,7 +7,7 @@ import {
   getByIdStore,
   getBySlugStore,
   updateStore,
-} from '../services/storeServices.ts'
+} from '../../core/services/storeServices.ts'
 import type {
   CreateRequest,
   DeleteRequest,

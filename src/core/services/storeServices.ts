@@ -1,9 +1,10 @@
-import type { CreateStoreType, StoreType } from '../types/storeTypes.ts'
-import { schema } from '../../db/schema/index.ts'
-import { db } from '../../db/conection.ts'
+import type { CreateStoreType, StoreType } from '../../http/types/storeTypes.ts'
 import { Slug } from '../../lib/Slub.ts'
 import { eq as EQ } from 'drizzle-orm'
-import { createAccount } from './authService.ts'
+import { createStoreModel } from '../models/factories/storeFactory.ts'
+import { createAccountService } from './authService.ts'
+import { db } from '../../db/drizzle/conection.ts'
+import { schema } from '../../db/drizzle/schema/index.ts'
 
 export const createStore = async (data: CreateStoreType) => {
   const {
@@ -21,51 +22,25 @@ export const createStore = async (data: CreateStoreType) => {
     throw new Error('Passwords do not match')
   }
 
-  const emailAlreadyExists = await db.query.auth.findFirst({
-    where: (auth, { eq }) => eq(auth.username, email),
-  })
-
-  if (emailAlreadyExists) {
-    throw new Error('Email already exists')
-  }
-
-  const slug = Slug.createSlugFromText(name)
-
-  const storeAlreadyExists = await db.query.stores.findFirst({
-    where: (stores, { eq, or }) =>
-      or(eq(stores.cnpj, cnpj), eq(stores.slug, slug.value)),
-  })
-
-  if (storeAlreadyExists) {
-    throw new Error('Store already exists')
-  }
-
-  const authStore = await createAccount({
+  const authStore = await createAccountService({
     username: email,
     password,
+    isAdmin: false,
   })
 
-  const store = await db
-    .insert(schema.stores)
-    .values({
-      userId: authStore.id,
-      name,
-      cnpj,
-      slug: slug.value,
-      email,
-      responsibleName,
-      phone,
-      city: address.city,
-      district: address.district,
-      number: address.number,
-      state: address.state,
-      street: address.street,
-      zipCode: address.zipCode,
-      complement: address.complement ?? '',
-    })
-    .returning()
-
-  return store[0]
+  const store = createStoreModel({
+    address: {
+      ...address,
+      zipCode: address.zipCode.replace(/\D/g, ''),
+    },
+    cnpj: cnpj.replace(/\D/g, ''),
+    email: email.trim(),
+    name,
+    phone: phone.replace(/\D/g, ''),
+    responsibleName,
+    userId: authStore.id,
+  })
+  return store
 }
 export const updateStore = async (
   data: Partial<CreateStoreType>,

@@ -5,7 +5,7 @@ import {
   getAllProductsByStore,
   getAllProductsByStoreId,
   updateProduct,
-} from '../services/productServices.ts'
+} from '../../core/services/productServices.ts'
 import type {
   CreateProductsRequest,
   UpdateProductsRequest,

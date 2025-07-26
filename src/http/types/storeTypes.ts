@@ -4,9 +4,15 @@ import type {
   storeSchema,
   updateStoreSchema,
 } from '../validations/storeSchemas.ts'
+import type { Optional } from '../../lib/Optional.ts'
 
 export type CreateStoreType = z.infer<typeof createStoreSchema>
 
 export type UpdateStoreType = z.infer<typeof updateStoreSchema>
 
 export type StoreType = z.infer<typeof storeSchema>
+
+export interface CreateStoreModelType
+  extends Optional<CreateStoreType, 'confirmPassword' | 'password'> {
+  userId: string
+}

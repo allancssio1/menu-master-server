@@ -37,10 +37,10 @@ POST {{baseUrl}}/store
 Content-Type: application/json
 
 {
-  "cnpj": "12.345.678/0001-90",
-  "name": "The Corner Store",
+  "cnpj": "12.345.678/0001-41",
+  "name": "The sotre coffee",
   "responsibleName": "Jane Doe",
-  "email": "jane.doe@example.com",
+  "email": "jane.doe1@example.com",
   "password": "123456",
   "confirmPassword": "123456",
   "phone": "11999998888",

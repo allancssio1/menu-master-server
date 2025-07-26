@@ -77,7 +77,7 @@ export const storeSchema = z.object({
   primaryColor: z.string(),
   secondaryColor: z.string(),
   accentColor: z.string(),
-  isActive: z.boolean(),
+  isActive: z.boolean().default(false),
   createdAt: z.date(),
   updatedAt: z.date(),
 })
