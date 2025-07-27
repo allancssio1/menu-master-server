@@ -22,7 +22,7 @@ import { z } from 'zod'
 
 export const productRoutes: FastifyPluginCallbackZod = (app) => {
   app.post<{ Body: CreateProductType; Params: { slug: string } }>(
-    '/store/:slug/product',
+    '/',
     {
       onRequest: [verifyJWT, verifyUserRole('STORE')],
       schema: {
@@ -36,7 +36,7 @@ export const productRoutes: FastifyPluginCallbackZod = (app) => {
   )
 
   app.put<{ Body: UpdateProductType; Params: { slug: string } }>(
-    '/store/:slug/product',
+    '/',
     {
       onRequest: [verifyJWT, verifyUserRole('STORE')],
       schema: {
@@ -50,7 +50,7 @@ export const productRoutes: FastifyPluginCallbackZod = (app) => {
   )
 
   app.get<{ Params: { slug: string } }>(
-    '/store/:slug/product',
+    '/',
     {
       schema: {
         params: z.object({
@@ -62,7 +62,7 @@ export const productRoutes: FastifyPluginCallbackZod = (app) => {
   )
 
   app.get<{ Params: { id: string; slug: string } }>(
-    '/store/:slug/product/:id',
+    '/:id',
     {
       onRequest: [verifyJWT, verifyUserRole('STORE')],
 
@@ -77,7 +77,7 @@ export const productRoutes: FastifyPluginCallbackZod = (app) => {
   )
 
   app.delete<{ Params: DeleteProductType }>(
-    '/store/:slug/product/:id',
+    '/:id',
     {
       onRequest: [verifyJWT, verifyUserRole('STORE')],
       schema: {

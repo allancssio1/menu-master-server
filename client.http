@@ -2,6 +2,8 @@
 @authToken = {{login.response.body.$.access_token}}
 @slug_store = {{list_stores.response.body.$[0].slug}}
 @id_store = {{list_stores.response.body.$[0].id}}
+@id_product = {{list_products.response.body.$[0].id}}
+@id_client = {{list_clients.response.body.$[0].id}}
 
 # Health
 GET {{baseUrl}}/health
@@ -37,10 +39,10 @@ POST {{baseUrl}}/store
 Content-Type: application/json
 
 {
-  "cnpj": "12.345.678/0001-90",
-  "name": "The Corner Store",
+  "cnpj": "12.345.678/0001-91",
+  "name": "The storee",
   "responsibleName": "Jane Doe",
-  "email": "jane.doe@example.com",
+  "email": "jane.doe1@example.com",
   "password": "123456",
   "confirmPassword": "123456",
   "phone": "11999998888",
@@ -95,20 +97,20 @@ Content-Type: application/json
 
 [
   {
-    "title": "leite da manha",
-    "description": "Pão carioquinha com ovo, queijo e presunto",
+    "title": "Arroz",
+    "description": "alimentos",
     "price": 4.99,
     "imageUrl": "http://cafe-da-manha.com",
-    "stoque": false,
-    "amount": 0
+    "stoque": true,
+    "amount": 500
   },
   {
-    "title": "leite da tarde",
-    "description": "Pão carioquinha com ovo, queijo e presunto",
+    "title": "Feijao",
+    "description": "alimentos",
     "price": 4.99,
     "imageUrl": "http://cafe-da-manha.com",
-    "stoque": false,
-    "amount": 0
+    "stoque": true,
+    "amount": 450
   }
 ]
 
@@ -125,22 +127,71 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "id": "59e074c7-eadd-430c-9884-fa20ce096fc9",
-  "title": "Café da manhã",
-  "description": "Pão carioquinha com ovo, queijo e presunto",
+  "id": "4686a089-3f99-4d89-b36e-390ced4d30c0",
+  "title": "Café da manhã de novo",
+  "description": "Cafézinho",
   "price": 4.98,
   "stoque": true,
-  "amount": 1,
+  "amount": 0,
   "imageUrl": "http://cafe-da-manha.com",
   "storeId": "02f56094-9ab7-4d03-8867-893ba060894c",
-  "slug": "cafe-da-manha"
+  "slug": "cafe-da-manha-de-"
 }
 
 ###
 
 # @name delete_product
-DELETE {{baseUrl}}/store/{{slug_store}}/product/5c523435-ebea-4ca5-9348-83635ea43ef6
+DELETE {{baseUrl}}/store/{{slug_store}}/product/{{id_product}}
 Authorization: Bearer {{authToken}}
+
+###
+
+# CLIENTS
+
+# @name create_client
+POST {{baseUrl}}/client/
+Content-Type: application/json
+
+{
+ "name": "Jane Doe",
+ "phone": "11999998888",
+ "zipCode": "61936180",
+ "street": "Rua 118",
+ "number": "100",
+ "district": "Timbó",
+ "city": "Maracanaú",
+ "state": "CE",
+ "complement": ""
+}
+  
+
+###
+
+# @name list_clients
+GET {{baseUrl}}/client
+
+###
+
+# @name update_client
+PUT {{baseUrl}}/client/{{id_client}}
+Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "phone": "11999998883",
+  "zipCode": "61936180",
+  "street": "Rua 118",
+  "number": "100",
+  "district": "Timbó",
+  "city": "Maracanaú",
+  "state": "CE",
+  "complement": ""
+}
+
+###
+
+# @name delete_client
+DELETE {{baseUrl}}/client/{{id_client}}
 
 ###
 
