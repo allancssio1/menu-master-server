@@ -78,7 +78,6 @@ export const findClientByPhoneService = async (phone: string) => {
 }
 
 export const deleteClientService = async (id: string) => {
-  console.log('🚀 ~ deleteClientService ~ id:', id)
   const client = await db
     .select()
     .from(schema.clients)
