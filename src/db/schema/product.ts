@@ -14,7 +14,7 @@ export const products = pgTable('products', {
   description: text(),
   price: integer().notNull(),
   slug: text(),
-  stoque: boolean().notNull().default(false),
+  stock: boolean().notNull().default(false),
   amount: integer().notNull().default(0),
   imageUrl: text(),
   decimals: integer().notNull().default(2),

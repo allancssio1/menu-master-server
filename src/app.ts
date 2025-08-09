@@ -11,6 +11,7 @@ import fastifyJwt from '@fastify/jwt'
 import { env } from './env/index.ts'
 import { productRoutes } from './http/routes/productRoutes.ts'
 import { clientRoutes } from './http/routes/clientRoutes.ts'
+import { orderRoutes } from './http/routes/orderRoutes.ts'
 
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -39,6 +40,9 @@ app.register(authRoutes, {
 })
 app.register(productRoutes, {
   prefix: 'store/:slug/product',
+})
+app.register(orderRoutes, {
+  prefix: 'order',
 })
 app.register(clientRoutes, {
   prefix: 'client',

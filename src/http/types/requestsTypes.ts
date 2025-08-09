@@ -2,6 +2,7 @@ import type { FastifyRequest } from 'fastify'
 import type { CreateStoreType, UpdateStoreType } from './storeTypes.ts'
 import type { CreateProductType, UpdateProductType } from './productTypes.ts'
 import type { CreateClientType, UpdateClientType } from './clientTypes.ts'
+import { CreateOrderType } from './orderTypes.ts'
 
 export type CreateRequest = FastifyRequest<{
   Body: CreateStoreType
@@ -64,4 +65,8 @@ export type ListClientsByIdRequest = FastifyRequest<{
 
 export type DeleteClientsByIdRequest = FastifyRequest<{
   Params: { id: string }
+}>
+
+export type CreateOrderRequest = FastifyRequest<{
+  Body: CreateOrderType
 }>

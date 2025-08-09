@@ -17,7 +17,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "username": "jane.doe@example.com",
+  "username": "jane.doe1@example.com",
   "password": "123456"
 }
 
@@ -195,3 +195,23 @@ DELETE {{baseUrl}}/client/{{id_client}}
 
 ###
 
+# ORDERS
+
+# @name create_order
+POST {{baseUrl}}/order
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "clientId": "8a058e2a-8b56-4ac3-8f76-05825b6cd011",
+  "products": [
+    {
+      "id": "b8b65e8e-ac09-4764-8d1e-cdba3007a1fc",
+      "amount": 2
+    },
+    {
+      "id": "cb38b6b9-6f2e-4dfc-8cce-6880a4db2ea7",
+      "amount": 2
+    }
+  ]
+}

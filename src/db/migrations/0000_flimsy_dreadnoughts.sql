@@ -1,4 +1,5 @@
 CREATE TYPE "public"."role" AS ENUM('ADMIN', 'STORE');--> statement-breakpoint
+CREATE TYPE "public"."status" AS ENUM('CREATED', 'ATTENDING', 'DELIVERED', 'COMPLETED', 'CANCELED');--> statement-breakpoint
 CREATE TABLE "auth" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"username" text NOT NULL,
@@ -25,6 +26,8 @@ CREATE TABLE "orders" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"store_id" uuid NOT NULL,
 	"client_id" uuid NOT NULL,
+	"reason" text,
+	"status" "status" NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -33,7 +36,7 @@ CREATE TABLE "orderItems" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"product_id" uuid NOT NULL,
 	"order_id" uuid NOT NULL,
-	"amount" text NOT NULL,
+	"amount" integer NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -42,7 +45,12 @@ CREATE TABLE "products" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"title" text NOT NULL,
 	"description" text,
-	"price" text NOT NULL,
+	"price" integer NOT NULL,
+	"slug" text,
+	"stock" boolean DEFAULT false NOT NULL,
+	"amount" integer DEFAULT 0 NOT NULL,
+	"image_url" text,
+	"decimals" integer DEFAULT 2 NOT NULL,
 	"store_id" uuid NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL

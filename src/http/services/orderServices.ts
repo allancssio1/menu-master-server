@@ -1,12 +1,9 @@
 /** biome-ignore-all lint/complexity/noForEach: testando for each */
-import type {
-  CreateOrderType,
-  OrderType,
-  UpdateOrderType,
-} from '../types/orderTypes.ts'
+import type { CreateOrderType, UpdateOrderType } from '../types/orderTypes.ts'
 import { schema } from '../../db/schema/index.ts'
 import { db } from '../../db/conection.ts'
 import { eq as EQ, and as AND } from 'drizzle-orm'
+import type { CreateOrderItemType } from '../types/orderItemType.ts'
 
 export const createOrder = async ({
   data,
@@ -24,7 +21,52 @@ export const createOrder = async ({
     throw new Error('Store not found')
   }
 
-  return { data, storeId }
+  const clientFound = await db.query.clients.findFirst({
+    where: (clients, { eq }) => eq(clients.id, data.clientId),
+  })
+
+  if (!clientFound) {
+    throw new Error('Client not found')
+  }
+
+  const productPromises = data.products.map(
+    async (product) =>
+      await db.query.products.findFirst({
+        where: (prods, { eq }) => eq(prods.id, product.id),
+      }),
+  )
+
+  const products = await Promise.all(productPromises)
+
+  const orderItem: CreateOrderItemType[] = []
+  await db.transaction(async (tx) => {
+    const orderId = await tx
+      .insert(schema.orders)
+      .values({
+        clientId: data.clientId,
+        status: 'CREATED',
+        storeId,
+      })
+      .returning()
+
+    for (const product of products) {
+      if (!product) {
+        throw new Error('Product not found')
+      }
+
+      const amount = data.products.find((p) => p.id === product.id)?.amount ?? 0
+      orderItem.push({
+        amount,
+        orderId: orderId[0].id,
+        productId: product.id,
+        price: product.price,
+        decimals: product.decimals,
+      })
+    }
+    await tx.insert(schema.orderItems).values(orderItem)
+  })
+
+  return { orderItem }
 }
 export const updateOrder = async ({
   data,

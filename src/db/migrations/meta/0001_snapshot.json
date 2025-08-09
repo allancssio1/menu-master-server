@@ -1,6 +1,6 @@
 {
-  "id": "5d3cf91f-77a2-4c7c-950c-914952cfbdc2",
-  "prevId": "35f3602e-7bb0-4b5a-b19f-64915a308c2d",
+  "id": "a13a25cd-4858-4896-a491-399712287ed6",
+  "prevId": "c0851eab-632e-4e31-85ec-3062a2cdbe20",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -154,6 +154,19 @@
           "primaryKey": false,
           "notNull": true
         },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -229,9 +242,22 @@
         },
         "amount": {
           "name": "amount",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "price": {
+          "name": "price",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "decimals": {
+          "name": "decimals",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 2
         },
         "created_at": {
           "name": "created_at",
@@ -311,6 +337,26 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stock": {
+          "name": "stock",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
         },
         "image_url": {
           "name": "image_url",
@@ -564,6 +610,17 @@
       "values": [
         "ADMIN",
         "STORE"
+      ]
+    },
+    "public.status": {
+      "name": "status",
+      "schema": "public",
+      "values": [
+        "CREATED",
+        "ATTENDING",
+        "DELIVERED",
+        "COMPLETED",
+        "CANCELED"
       ]
     }
   },
