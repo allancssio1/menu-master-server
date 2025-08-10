@@ -50,7 +50,6 @@ export const deleteClientController = async (
   reply: FastifyReply,
 ) => {
   const { id } = request.params
-  console.log('🚀 ~ deleteClientController ~ id:', id)
 
   await deleteClientService(id)
 

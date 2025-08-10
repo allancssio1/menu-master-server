@@ -39,18 +39,6 @@ export const updateStoreController = async (
   return reply.status(200).send(product)
 }
 
-// export const changeIsActiveStoreController = async (
-//   request: IsActiveRequest,
-//   reply: FastifyReply,
-// ) => {
-//   const { user } = request
-//   const { sub } = user
-
-//   await changeActiveStore(sub)
-
-//   return reply.status(200).send()
-// }
-
 export const getAllStoresController = async (
   _: FastifyRequest,
   reply: FastifyReply,
@@ -59,6 +47,7 @@ export const getAllStoresController = async (
 
   return reply.status(200).send(stores)
 }
+
 export const getBySlugStoreController = async (
   request: PublicDataRequest,
   reply: FastifyReply,
@@ -67,6 +56,7 @@ export const getBySlugStoreController = async (
 
   return reply.status(200).send(store)
 }
+
 export const getByIdStoreController = async (
   request: UpdateRequest,
   reply: FastifyReply,
@@ -79,6 +69,7 @@ export const getByIdStoreController = async (
 
   return reply.status(200).send({ store })
 }
+
 export const deleteStoreController = async (
   request: DeleteRequest,
   reply: FastifyReply,

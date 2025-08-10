@@ -2,6 +2,7 @@ import z from 'zod'
 
 export const createOrderSchema = z.object({
   clientId: z.string(),
+  storeId: z.string(),
   products: z.array(
     z.object({
       id: z.string(),
@@ -13,7 +14,13 @@ export const createOrderSchema = z.object({
 export const updateOrderSchema = z
   .object({
     id: z.string().uuid('Order ID must be a valid UUID'),
-    status: z.enum(['CREATED', 'ATTENDING', 'DELIVERED', 'COMPLETED', 'CANCELED']),
+    status: z.enum([
+      'CREATED',
+      'ATTENDING',
+      'DELIVERED',
+      'COMPLETED',
+      'CANCELED',
+    ]),
     reason: z.string().optional(),
   })
   .refine(
@@ -26,7 +33,7 @@ export const updateOrderSchema = z
     {
       message: 'Reason is required when status is CANCELED',
       path: ['reason'],
-    }
+    },
   )
 
 export const getOrderParamsSchema = z.object({

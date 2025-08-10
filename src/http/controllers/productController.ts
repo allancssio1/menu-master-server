@@ -1,4 +1,4 @@
-import type { FastifyReply } from 'fastify'
+import type { FastifyReply, FastifyRequest } from 'fastify'
 import {
   createProduct,
   deleteProduct,
@@ -11,7 +11,6 @@ import type {
   UpdateProductsRequest,
   ListProductsBySlugStoreRequest,
   DeleteProductsByIdStoreRequest,
-  ListProductsByStoreIdRequest,
 } from '../types/requestsTypes.ts'
 
 export const createProductController = async (
@@ -50,12 +49,13 @@ export const getAllProductByStoreController = async (
 }
 
 export const getAllProductByStoreIdController = async (
-  request: ListProductsByStoreIdRequest,
+  request: FastifyRequest,
   reply: FastifyReply,
 ) => {
-  const { id } = request.params
+  const { user } = request
+  const { sub } = user
 
-  const products = await getAllProductsByStoreId({ id })
+  const products = await getAllProductsByStoreId({ id: sub })
 
   return reply.status(200).send(products)
 }

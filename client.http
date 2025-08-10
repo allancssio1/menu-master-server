@@ -3,7 +3,7 @@
 @slug_store = {{list_stores.response.body.$[0].slug}}
 @id_store = {{list_stores.response.body.$[0].id}}
 @id_product1 = {{list_products.response.body.$[0].id}}
-@id_product2 = {{list_products.response.body.$[0].id}}
+@id_product2 = {{list_products.response.body.$[1].id}}
 @id_client = {{list_clients.response.body.$[0].id}}
 @id_order = {{list_orders.response.body.$[0].id}}
 
@@ -103,7 +103,7 @@ Content-Type: application/json
     "description": "alimentos",
     "price": 4.99,
     "imageUrl": "http://cafe-da-manha.com",
-    "stoque": true,
+    "stock": true,
     "amount": 500
   },
   {
@@ -111,7 +111,7 @@ Content-Type: application/json
     "description": "alimentos",
     "price": 4.99,
     "imageUrl": "http://cafe-da-manha.com",
-    "stoque": true,
+    "stock": true,
     "amount": 450
   }
 ]
@@ -133,7 +133,7 @@ Content-Type: application/json
   "title": "Café da manhã de novo",
   "description": "Cafézinho",
   "price": 4.98,
-  "stoque": true,
+  "stock": true,
   "amount": 0,
   "imageUrl": "http://cafe-da-manha.com",
   "storeId": "02f56094-9ab7-4d03-8867-893ba060894c",
@@ -200,12 +200,13 @@ DELETE {{baseUrl}}/client/{{id_client}}
 # ORDERS
 
 # @name create_order
-POST {{baseUrl}}/order
+POST {{baseUrl}}/store/{{slug_store}}/order
 Content-Type: application/json
 Authorization: Bearer {{authToken}}
 
 {
   "clientId": "{{id_client}}",
+  "storeId": "{{id_store}}",
   "products": [
     {
       "id": "{{id_product1}}",
@@ -221,19 +222,19 @@ Authorization: Bearer {{authToken}}
 ###
 
 # @name list_orders
-GET {{baseUrl}}/order
+GET {{baseUrl}}/store/{{slug_store}}/order
 Authorization: Bearer {{authToken}}
 
 ###
 
 # @name get_order_by_id
-GET {{baseUrl}}/order/{{create_order.response.body.$.orderId}}
+GET {{baseUrl}}/store/{{slug_store}}/order/{{create_order.response.body.$.orderId}}
 Authorization: Bearer {{authToken}}
 
 ###
 
 # @name update_order
-PUT {{baseUrl}}/order
+PUT {{baseUrl}}/store/{{slug_store}}/order
 Content-Type: application/json
 Authorization: Bearer {{authToken}}
 
@@ -245,7 +246,7 @@ Authorization: Bearer {{authToken}}
 ###
 
 # @name cancel_order
-PUT {{baseUrl}}/order
+PUT {{baseUrl}}/store/{{slug_store}}/order
 Content-Type: application/json
 Authorization: Bearer {{authToken}}
 
@@ -258,5 +259,5 @@ Authorization: Bearer {{authToken}}
 ###
 
 # @name delete_order
-DELETE {{baseUrl}}/order/{{create_order.response.body.$.orderId}}
+DELETE {{baseUrl}}/store/{{slug_store}}/order/{{create_order.response.body.$.orderId}}
 Authorization: Bearer {{authToken}}

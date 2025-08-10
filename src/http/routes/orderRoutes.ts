@@ -1,12 +1,12 @@
 import type { FastifyPluginCallbackZod } from 'fastify-type-provider-zod'
-import { 
+import {
   createOrderController,
   getAllOrdersController,
   getOrderByIdController,
   updateOrderController,
   deleteOrderController,
 } from '../controllers/orderController.ts'
-import { 
+import {
   createOrderSchema,
   updateOrderSchema,
   getOrderParamsSchema,
@@ -17,12 +17,16 @@ import type { CreateOrderType, UpdateOrderType } from '../types/orderTypes.ts'
 
 export const orderRoutes: FastifyPluginCallbackZod = (app) => {
   // Create order
-  app.post<{ Body: CreateOrderType }>(
+  app.post<{ Body: CreateOrderType; Params: { slug: string } }>(
     '/',
     {
-      onRequest: [verifyJWT, verifyUserRole('STORE')],
       schema: {
         body: createOrderSchema,
+        params: {
+          slug: {
+            type: 'string',
+          },
+        },
       },
     },
     createOrderController,

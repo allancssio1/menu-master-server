@@ -1,20 +1,23 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { 
+import {
   createOrder,
   getAllOrders,
   getOrderById,
   updateOrder,
   deleteOrder,
 } from '../services/orderServices.ts'
-import type { CreateOrderRequest, UpdateOrderRequest } from '../types/requestsTypes.ts'
+import type {
+  CreateOrderRequest,
+  UpdateOrderRequest,
+} from '../types/requestsTypes.ts'
 
 export const createOrderController = async (
   req: CreateOrderRequest,
   res: FastifyReply,
 ) => {
-  const { body, user } = req
-  const { sub } = user
-  const order = await createOrder({ data: body, storeId: sub })
+  const { body } = req
+  console.log('🚀 ~ createOrderController ~ body:', body)
+  const order = await createOrder({ data: body, storeId: body.storeId })
   return res.status(201).send(order)
 }
 
@@ -23,8 +26,10 @@ export const getAllOrdersController = async (
   res: FastifyReply,
 ) => {
   const { user } = req
-  const { sub: storeId } = user
-  const orders = await getAllOrders({ storeId })
+  console.log('🚀 ~ getAllOrdersController ~ user:', user)
+  const { sub } = user
+  const orders = await getAllOrders({ storeId: sub })
+  console.log('🚀 ~ getAllOrdersController ~ orders:', orders)
   return res.status(200).send(orders)
 }
 

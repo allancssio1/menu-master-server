@@ -6,7 +6,7 @@ export const createProductSchema = z.array(
     description: z.string().optional().default(''),
     price: z.coerce.number().min(0, 'Price must be greater than 0'),
     imageUrl: z.string().optional().default(''),
-    stoque: z.boolean().optional().default(false),
+    stock: z.boolean().optional().default(false),
     amount: z.coerce.number().optional().default(0),
   }),
 )
@@ -17,7 +17,7 @@ export const updateProductSchema = z.object({
   description: z.string().optional().default(''),
   price: z.coerce.number().min(0, 'Price must be greater than 0'),
   imageUrl: z.string().optional().default(''),
-  stoque: z.boolean().optional().default(false),
+  stock: z.boolean().optional().default(false),
   amount: z.coerce.number().optional().default(0),
 })
 

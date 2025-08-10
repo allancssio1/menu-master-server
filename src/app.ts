@@ -42,7 +42,7 @@ app.register(productRoutes, {
   prefix: 'store/:slug/product',
 })
 app.register(orderRoutes, {
-  prefix: 'order',
+  prefix: 'store/:slug/order',
 })
 app.register(clientRoutes, {
   prefix: 'client',

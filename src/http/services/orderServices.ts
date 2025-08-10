@@ -11,8 +11,9 @@ export const createOrder = async ({
 }: {
   data: CreateOrderType
   storeId: string
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: this is correct
 }) => {
+  console.log('🚀 ~ createOrder ~ storeId:', storeId)
+  console.log('🚀 ~ createOrder ~ data:', data)
   const storeFound = await db.query.stores.findFirst({
     where: (stores, { eq }) => eq(stores.id, storeId),
   })
@@ -89,7 +90,8 @@ export const updateOrder = async ({
   }
 
   const orderFound = await db.query.orders.findFirst({
-    where: (order, { eq, and }) => and(eq(order.id, data.id), eq(order.storeId, storeId)),
+    where: (order, { eq, and }) =>
+      and(eq(order.id, data.id), eq(order.storeId, storeId)),
   })
 
   if (!orderFound) {
@@ -103,34 +105,51 @@ export const updateOrder = async ({
       reason: data.reason,
       updatedAt: new Date(),
     })
-    .where(AND(EQ(schema.orders.id, data.id), EQ(schema.orders.storeId, storeId)))
+    .where(
+      AND(EQ(schema.orders.id, data.id), EQ(schema.orders.storeId, storeId)),
+    )
     .returning()
 
   return updatedOrder[0]
 }
 
 export const getAllOrders = async ({ storeId }: { storeId: string }) => {
+  console.log('🚀 ~ getAllOrders ~ storeId:', storeId)
   const storeFound = await db.query.stores.findFirst({
     where: (stores, { eq }) => eq(stores.id, storeId),
   })
+  console.log('🚀 ~ getAllOrders ~ storeFound:', storeFound)
 
   if (!storeFound) {
     throw new Error('Store not found')
   }
 
-  const orders = await db.query.orders.findMany({
-    where: (order, { eq }) => eq(order.storeId, storeId),
-    with: {
-      client: true,
-      orderItems: {
-        with: {
-          product: true,
-        },
-      },
-    },
-  })
+  try {
+    const orders = await db
+      .select({
+        orderItemId: schema.orderItems.id,
+        orderId: schema.orderItems.orderId,
+        productId: schema.orderItems.productId,
+        amount: schema.orderItems.amount,
+        price: schema.orderItems.price,
+        // Outros campos que precisar
+      })
+      .from(schema.orderItems)
+      .innerJoin(schema.orders, EQ(schema.orderItems.orderId, schema.orders.id))
+      .where(EQ(schema.orders.storeId, storeId))
+    // .query.orders.findMany({
+    //   where: EQ(schema.orders.storeId, storeId),
+    //   with: {
+    //     orderItems: true,
+    //   },
+    // })
+    console.log('🚀 ~ getAllOrders ~ orders:', orders)
 
-  return orders
+    return orders
+  } catch (error) {
+    console.log('🚀 ~ getAllOrders ~ error:', error)
+    return []
+  }
 }
 
 export const getOrderById = async ({

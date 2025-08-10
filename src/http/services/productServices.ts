@@ -30,14 +30,7 @@ export const createProduct = async ({
   const productSuccess: ProductType[] = []
 
   if (data && data.length > 0) {
-    for (const {
-      price,
-      title,
-      description,
-      imageUrl,
-      amount,
-      stoque,
-    } of data) {
+    for (const { price, title, description, imageUrl, amount, stock } of data) {
       const productSlug = Slug.createSlugFromText(title)
 
       // biome-ignore lint/nursery/noAwaitInLoop: this is correct
@@ -52,7 +45,7 @@ export const createProduct = async ({
           description,
           imageUrl,
           amount,
-          stoque,
+          stock,
         })
         continue
       }
@@ -71,7 +64,7 @@ export const createProduct = async ({
             storeId,
             imageUrl: imageUrl ?? null,
             amount: amount ?? 0,
-            stoque: stoque ?? false,
+            stock: stock ?? false,
           })
           .returning()
 
@@ -83,7 +76,7 @@ export const createProduct = async ({
             slug: productCreated[0].slug ?? '',
             imageUrl: productCreated[0].imageUrl ?? '',
             amount: productCreated[0].amount,
-            stoque: productCreated[0].stoque,
+            stock: productCreated[0].stock,
             decimals: productCreated[0].decimals,
             storeId: productCreated[0].storeId,
             createdAt: productCreated[0].createdAt,
@@ -101,13 +94,13 @@ export const createProduct = async ({
           description,
           imageUrl,
           amount,
-          stoque,
+          stock,
         })
       }
     }
     // data.forEach(
     //   // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: disabled '=>'
-    //   async ({ price, title, description, imageUrl, amount, stoque }) => {
+    //   async ({ price, title, description, imageUrl, amount, stock }) => {
     //     const productSlug = Slug.createSlugFromText(title)
 
     //     const productFoundBySlug = await db.query.products.findFirst({
@@ -121,7 +114,7 @@ export const createProduct = async ({
     //         description,
     //         imageUrl,
     //         amount,
-    //         stoque,
+    //         stock,
     //       })
     //       return null
     //     }
@@ -140,7 +133,7 @@ export const createProduct = async ({
     //           storeId,
     //           imageUrl: imageUrl ?? null,
     //           amount: amount ?? 0,
-    //           stoque: stoque ?? false,
+    //           stock: stock ?? false,
     //         })
     //         .returning()
 
@@ -152,7 +145,7 @@ export const createProduct = async ({
     //           slug: productCreated[0].slug ?? '',
     //           imageUrl: productCreated[0].imageUrl ?? '',
     //           amount: productCreated[0].amount,
-    //           stoque: productCreated[0].stoque,
+    //           stock: productCreated[0].stock,
     //           decimals: productCreated[0].decimals,
     //           storeId: productCreated[0].storeId,
     //           createdAt: productCreated[0].createdAt,
@@ -172,7 +165,7 @@ export const createProduct = async ({
     //         description,
     //         imageUrl,
     //         amount,
-    //         stoque,
+    //         stock,
     //       })
     //       return null
     //     }
@@ -183,7 +176,7 @@ export const createProduct = async ({
   return { productSuccess, productsError }
 }
 export const updateProduct = async ({
-  data: { id, price, title, amount, description, imageUrl, stoque },
+  data: { id, price, title, amount, description, imageUrl, stock },
   storeId,
 }: {
   data: UpdateProductType
@@ -231,7 +224,7 @@ export const updateProduct = async ({
       }),
       slug: productSlug.value,
       amount: amount ?? productFound.amount,
-      stoque: stoque ?? productFound.stoque,
+      stock: stock ?? productFound.stock,
       storeId,
       imageUrl: imageUrl ?? productFound.imageUrl,
     })
@@ -260,7 +253,7 @@ export const getAllProductsByStore = async ({
     products.map(
       (product): Partial<ProductType> => ({
         amount: product.amount,
-        stoque: product.stoque,
+        stock: product.stock,
         id: product.id,
         title: product.title,
         description: product.description ?? '',
@@ -278,7 +271,7 @@ export const getAllProductsByStore = async ({
 
 export const getAllProductsByStoreId = async ({ id }: { id: string }) => {
   const store = await db.query.products.findFirst({
-    where: (stores, { eq }) => eq(stores.slug, id),
+    where: (stores, { eq }) => eq(stores.id, id),
   })
 
   if (!store) {
@@ -300,6 +293,7 @@ export const getAllProductsByStoreId = async ({ id }: { id: string }) => {
           rawPrice: product.price,
           decimal: product.decimals,
         }),
+        stock: product.stock ?? false,
       }),
     ) ?? []
 
