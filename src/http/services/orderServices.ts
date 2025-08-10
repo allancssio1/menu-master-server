@@ -39,34 +39,39 @@ export const createOrder = async ({
   const products = await Promise.all(productPromises)
 
   const orderItem: CreateOrderItemType[] = []
-  await db.transaction(async (tx) => {
-    const orderId = await tx
-      .insert(schema.orders)
-      .values({
-        clientId: data.clientId,
-        status: 'CREATED',
-        storeId,
-      })
-      .returning()
+  try {
+    await db.transaction(async (tx) => {
+      const orderId = await tx
+        .insert(schema.orders)
+        .values({
+          clientId: data.clientId,
+          status: 'CREATED',
+          storeId,
+        })
+        .returning()
 
-    for (const product of products) {
-      if (!product) {
-        throw new Error('Product not found')
+      for (const product of products) {
+        if (!product) {
+          throw new Error('Product not found')
+        }
+
+        const amount =
+          data.products.find((p) => p.id === product.id)?.amount ?? 0
+        orderItem.push({
+          amount,
+          orderId: orderId[0].id,
+          productId: product.id,
+          price: product.price,
+          decimals: product.decimals,
+        })
       }
+      await tx.insert(schema.orderItems).values(orderItem)
+    })
 
-      const amount = data.products.find((p) => p.id === product.id)?.amount ?? 0
-      orderItem.push({
-        amount,
-        orderId: orderId[0].id,
-        productId: product.id,
-        price: product.price,
-        decimals: product.decimals,
-      })
-    }
-    await tx.insert(schema.orderItems).values(orderItem)
-  })
-
-  return { orderItem }
+    return { orderItem }
+  } catch (_error) {
+    return null
+  }
 }
 export const updateOrder = async ({
   data,
@@ -82,35 +87,85 @@ export const updateOrder = async ({
   if (!storeFound) {
     throw new Error('Store not found')
   }
-  return { data, storeId }
+
+  const orderFound = await db.query.orders.findFirst({
+    where: (order, { eq, and }) => and(eq(order.id, data.id), eq(order.storeId, storeId)),
+  })
+
+  if (!orderFound) {
+    throw new Error('Order not found')
+  }
+
+  const updatedOrder = await db
+    .update(schema.orders)
+    .set({
+      status: data.status,
+      reason: data.reason,
+      updatedAt: new Date(),
+    })
+    .where(AND(EQ(schema.orders.id, data.id), EQ(schema.orders.storeId, storeId)))
+    .returning()
+
+  return updatedOrder[0]
 }
 
-export const getAllOrdersByStore = async ({
-  storeSlug,
+export const getAllOrders = async ({ storeId }: { storeId: string }) => {
+  const storeFound = await db.query.stores.findFirst({
+    where: (stores, { eq }) => eq(stores.id, storeId),
+  })
+
+  if (!storeFound) {
+    throw new Error('Store not found')
+  }
+
+  const orders = await db.query.orders.findMany({
+    where: (order, { eq }) => eq(order.storeId, storeId),
+    with: {
+      client: true,
+      orderItems: {
+        with: {
+          product: true,
+        },
+      },
+    },
+  })
+
+  return orders
+}
+
+export const getOrderById = async ({
+  id,
+  storeId,
 }: {
-  storeSlug: string
+  id: string
+  storeId: string
 }) => {
-  const store = await db.query.stores.findFirst({
-    where: (stores, { eq }) => eq(stores.slug, storeSlug),
+  const storeFound = await db.query.stores.findFirst({
+    where: (stores, { eq }) => eq(stores.id, storeId),
   })
 
-  if (!store) {
+  if (!storeFound) {
     throw new Error('Store not found')
   }
 
-  return null
-}
-
-export const getAllOrdersByStoreId = async ({ id }: { id: string }) => {
-  const store = await db.query.orders.findFirst({
-    where: (stores, { eq }) => eq(stores.id, id),
+  const order = await db.query.orders.findFirst({
+    where: (orderTable, { eq, and }) =>
+      and(eq(orderTable.id, id), eq(orderTable.storeId, storeId)),
+    with: {
+      client: true,
+      orderItems: {
+        with: {
+          product: true,
+        },
+      },
+    },
   })
 
-  if (!store) {
-    throw new Error('Store not found')
+  if (!order) {
+    throw new Error('Order not found')
   }
 
-  return null
+  return order
 }
 
 export const deleteOrder = async ({

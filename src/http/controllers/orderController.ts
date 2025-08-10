@@ -1,6 +1,12 @@
-import type { FastifyReply } from 'fastify'
-import { createOrder } from '../services/orderServices.ts'
-import type { CreateOrderRequest } from '../types/requestsTypes.ts'
+import type { FastifyReply, FastifyRequest } from 'fastify'
+import { 
+  createOrder,
+  getAllOrders,
+  getOrderById,
+  updateOrder,
+  deleteOrder,
+} from '../services/orderServices.ts'
+import type { CreateOrderRequest, UpdateOrderRequest } from '../types/requestsTypes.ts'
 
 export const createOrderController = async (
   req: CreateOrderRequest,
@@ -10,4 +16,46 @@ export const createOrderController = async (
   const { sub } = user
   const order = await createOrder({ data: body, storeId: sub })
   return res.status(201).send(order)
+}
+
+export const getAllOrdersController = async (
+  req: FastifyRequest & { user: { sub: string } },
+  res: FastifyReply,
+) => {
+  const { user } = req
+  const { sub: storeId } = user
+  const orders = await getAllOrders({ storeId })
+  return res.status(200).send(orders)
+}
+
+export const getOrderByIdController = async (
+  req: FastifyRequest & { user: { sub: string }; params: { id: string } },
+  res: FastifyReply,
+) => {
+  const { user, params } = req
+  const { sub: storeId } = user
+  const { id } = params
+  const order = await getOrderById({ id, storeId })
+  return res.status(200).send(order)
+}
+
+export const updateOrderController = async (
+  req: UpdateOrderRequest,
+  res: FastifyReply,
+) => {
+  const { body, user } = req
+  const { sub: storeId } = user
+  const updatedOrder = await updateOrder({ data: body, storeId })
+  return res.status(200).send(updatedOrder)
+}
+
+export const deleteOrderController = async (
+  req: FastifyRequest & { user: { sub: string }; params: { id: string } },
+  res: FastifyReply,
+) => {
+  const { user, params } = req
+  const { sub: storeId } = user
+  const { id } = params
+  const result = await deleteOrder({ id, storeId })
+  return res.status(200).send(result)
 }

@@ -2,8 +2,10 @@
 @authToken = {{login.response.body.$.access_token}}
 @slug_store = {{list_stores.response.body.$[0].slug}}
 @id_store = {{list_stores.response.body.$[0].id}}
-@id_product = {{list_products.response.body.$[0].id}}
+@id_product1 = {{list_products.response.body.$[0].id}}
+@id_product2 = {{list_products.response.body.$[0].id}}
 @id_client = {{list_clients.response.body.$[0].id}}
+@id_order = {{list_orders.response.body.$[0].id}}
 
 # Health
 GET {{baseUrl}}/health
@@ -141,7 +143,7 @@ Content-Type: application/json
 ###
 
 # @name delete_product
-DELETE {{baseUrl}}/store/{{slug_store}}/product/{{id_product}}
+DELETE {{baseUrl}}/store/{{slug_store}}/product/{{id_product1}}
 Authorization: Bearer {{authToken}}
 
 ###
@@ -203,15 +205,58 @@ Content-Type: application/json
 Authorization: Bearer {{authToken}}
 
 {
-  "clientId": "8a058e2a-8b56-4ac3-8f76-05825b6cd011",
+  "clientId": "{{id_client}}",
   "products": [
     {
-      "id": "b8b65e8e-ac09-4764-8d1e-cdba3007a1fc",
+      "id": "{{id_product1}}",
       "amount": 2
     },
     {
-      "id": "cb38b6b9-6f2e-4dfc-8cce-6880a4db2ea7",
-      "amount": 2
+      "id": "{{id_product2}}",
+      "amount": 4
     }
   ]
 }
+
+###
+
+# @name list_orders
+GET {{baseUrl}}/order
+Authorization: Bearer {{authToken}}
+
+###
+
+# @name get_order_by_id
+GET {{baseUrl}}/order/{{create_order.response.body.$.orderId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+# @name update_order
+PUT {{baseUrl}}/order
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "id": "{{create_order.response.body.$.orderId}}",
+  "status": "ATTENDING"
+}
+
+###
+
+# @name cancel_order
+PUT {{baseUrl}}/order
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "id": "{{create_order.response.body.$.orderId}}",
+  "status": "CANCELED",
+  "reason": "Client requested cancellation"
+}
+
+###
+
+# @name delete_order
+DELETE {{baseUrl}}/order/{{create_order.response.body.$.orderId}}
+Authorization: Bearer {{authToken}}
