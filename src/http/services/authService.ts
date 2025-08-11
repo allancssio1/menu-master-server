@@ -1,6 +1,8 @@
 import { db } from '../../db/conection.ts'
 import { compare, hash } from 'bcryptjs'
 import { schema } from '../../db/schema/index.ts'
+import { InvalidCredentials } from '../../errors/invalidCredentials.ts'
+import { UserAlreadyExists } from '../../errors/userAlreadyExists.ts'
 
 export const login = async ({
   password,
@@ -14,13 +16,13 @@ export const login = async ({
   })
 
   if (!userAuth) {
-    throw new Error('Invalid credentials')
+    throw new InvalidCredentials()
   }
 
   const passwordMatch = await compare(password, userAuth.password)
 
   if (!passwordMatch) {
-    throw new Error('Invalid credentials')
+    throw new InvalidCredentials()
   }
 
   const store = await db.query.stores.findFirst({
@@ -49,7 +51,7 @@ export const createAccount = async ({
   })
 
   if (userAlreadyExists) {
-    throw new Error('User already exists')
+    throw new UserAlreadyExists()
   }
 
   const passwordHash = await hash(password, 8)

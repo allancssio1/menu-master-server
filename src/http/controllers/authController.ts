@@ -1,6 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { LoginRequest } from '../types/requestsTypes.ts'
 import { login } from '../services/authService.ts'
+import { UnauthorizedError } from '../../errors/unauthorizedError.ts'
 
 export const loginControler = async (req: LoginRequest, res: FastifyReply) => {
   const { password, username } = req.body
@@ -31,7 +32,7 @@ export const logoutControler = async (
   try {
     await request.jwtVerify()
   } catch (error) {
-    throw new Error('Unauthorized')
+    throw new UnauthorizedError()
   }
   const { user } = request
   const { sub } = user

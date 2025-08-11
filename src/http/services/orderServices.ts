@@ -5,6 +5,9 @@ import { db } from '../../db/conection.ts'
 import { eq as EQ, and as AND } from 'drizzle-orm'
 import type { CreateOrderItemType } from '../types/orderItemType.ts'
 import { StoreNotFound } from '../../errors/storeNotFound.ts'
+import { ProductNotFound } from '../../errors/productNotFound.ts'
+import { OrderNotFound } from '../../errors/orderNotFound.ts'
+import { DeleteError } from '../../errors/deleteError.ts'
 import { ClientNotFound } from '../../errors/clientNotFound.ts'
 
 export const createOrder = async ({
@@ -53,7 +56,7 @@ export const createOrder = async ({
 
       for (const product of products) {
         if (!product) {
-          throw new Error('Product not found')
+          throw new ProductNotFound()
         }
 
         const amount =
@@ -95,7 +98,7 @@ export const updateOrder = async ({
   })
 
   if (!orderFound) {
-    throw new Error('Order not found')
+    throw new OrderNotFound()
   }
 
   const updatedOrder = await db
@@ -191,7 +194,7 @@ export const getOrderById = async ({
   })
 
   if (!order) {
-    throw new Error('Order not found')
+    throw new OrderNotFound()
   }
 
   return order
@@ -210,6 +213,6 @@ export const deleteOrder = async ({
       .where(AND(EQ(schema.orders.id, id), EQ(schema.orders.storeId, storeId)))
       .execute()
   } catch (_error) {
-    throw new Error('Error deleting store or Store not found')
+    throw new DeleteError()
   }
 }

@@ -10,6 +10,9 @@ import { eq as EQ, and as AND } from 'drizzle-orm'
 import { Slug } from '../../lib/Slub.ts'
 import { ConvertPrice } from '../../lib/ConvertPrice.ts'
 import { StoreNotFound } from '../../errors/storeNotFound.ts'
+import { ProductTitleAlreadyExists } from '../../errors/productTitleAlreadyExists.ts'
+import { ProductNotFound } from '../../errors/productNotFound.ts'
+import { DeleteError } from '../../errors/deleteError.ts'
 
 export const createProduct = async ({
   data,
@@ -202,7 +205,7 @@ export const updateProduct = async ({
     })
 
     if (productFoundBySlug && productFoundBySlug.id !== id) {
-      throw new Error('Product tile already exists in this store')
+      throw new ProductTitleAlreadyExists()
     }
   }
 
@@ -211,7 +214,7 @@ export const updateProduct = async ({
   })
 
   if (!productFound) {
-    throw new Error('Product not found')
+    throw new ProductNotFound()
   }
 
   await db
@@ -316,6 +319,6 @@ export const deleteProduct = async ({
       )
       .execute()
   } catch (_error) {
-    throw new Error('Error deleting store or Store not found')
+    throw new DeleteError()
   }
 }

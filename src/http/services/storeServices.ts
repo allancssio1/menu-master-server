@@ -6,6 +6,7 @@ import { eq as EQ } from 'drizzle-orm'
 import { createAccount } from './authService.ts'
 import { StoreNotFound } from '../../errors/storeNotFound.ts'
 import { EmailAlreadyExists } from '../../errors/emailAlreadyExists.ts'
+import { SlugAlreadyExists } from '../../errors/slugAlreadyExists.ts'
 import { StoreAlreadyExists } from '../../errors/storeAlreadyExists.ts'
 
 export const createStore = async (data: CreateStoreType) => {
@@ -77,7 +78,7 @@ export const updateStore = async (
     })
 
     if (slugAlreadyExists) {
-      throw new Error('Slug already exists')
+      throw new SlugAlreadyExists()
     }
   }
   const updatedStoreData = {

@@ -7,6 +7,7 @@ import type {
   UpdateClientType,
 } from '../types/clientTypes.ts'
 import { ClientNotFound } from '../../errors/clientNotFound.ts'
+import { ClientAlreadyExists } from '../../errors/clientAlreadyExists.ts'
 
 export const createClientService = async (data: CreateClientType) => {
   const clientAlreadyExists = await db.query.clients.findFirst({
@@ -14,7 +15,7 @@ export const createClientService = async (data: CreateClientType) => {
   })
 
   if (clientAlreadyExists) {
-    throw new Error('Client already exists')
+    throw new ClientAlreadyExists()
   }
 
   const client = await db
