@@ -12,6 +12,8 @@ import { env } from './env/index.ts'
 import { productRoutes } from './http/routes/productRoutes.ts'
 import { clientRoutes } from './http/routes/clientRoutes.ts'
 import { orderRoutes } from './http/routes/orderRoutes.ts'
+import { fromZodError } from 'zod-validation-error'
+import { ZodError } from 'zod/v4'
 
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -46,6 +48,24 @@ app.register(orderRoutes, {
 })
 app.register(clientRoutes, {
   prefix: 'client',
+})
+
+app.setErrorHandler((error, _request, reply) => {
+  if (error instanceof ZodError) {
+    return reply.status(400).send({
+      message: 'Validation error.',
+      errors: fromZodError(error),
+    })
+  }
+
+  if (env.NODE_ENV !== 'production') {
+    // biome-ignore lint/suspicious/noConsole: <console to dev>
+    console.error(error)
+  } else {
+    // TODO: Here we should log to an external tool like DataDog/NewRelic/Sentry
+  }
+
+  return reply.status(500).send({ message: 'Internal server error.' })
 })
 
 export { app }

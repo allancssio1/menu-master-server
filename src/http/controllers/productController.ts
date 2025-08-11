@@ -12,6 +12,7 @@ import type {
   ListProductsBySlugStoreRequest,
   DeleteProductsByIdStoreRequest,
 } from '../types/requestsTypes.ts'
+import { StoreNotFound } from '../../errors/storeNotFound.ts'
 
 export const createProductController = async (
   request: CreateProductsRequest,
@@ -19,10 +20,16 @@ export const createProductController = async (
 ) => {
   const { body, user } = request
   const { sub } = user
+  try {
+    const result = await createProduct({ data: body, storeId: sub })
 
-  const result = await createProduct({ data: body, storeId: sub })
-
-  return reply.status(201).send(result)
+    return reply.status(201).send(result)
+  } catch (error) {
+    if (error instanceof StoreNotFound) {
+      return reply.status(404).send(error.message)
+    }
+    return reply.status(500).send({ error })
+  }
 }
 
 export const updateProductController = async (

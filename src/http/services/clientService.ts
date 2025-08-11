@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/style/useFilenamingConvention: <explanation> */
 import { db } from '../../db/conection.ts'
 import { eq as EQ } from 'drizzle-orm'
 import { schema } from '../../db/schema/index.ts'
@@ -5,6 +6,7 @@ import type {
   CreateClientType,
   UpdateClientType,
 } from '../types/clientTypes.ts'
+import { ClientNotFound } from '../../errors/clientNotFound.ts'
 
 export const createClientService = async (data: CreateClientType) => {
   const clientAlreadyExists = await db.query.clients.findFirst({
@@ -43,7 +45,7 @@ export const updateClientService = async ({
   })
 
   if (!clientFound) {
-    throw new Error('Client not found')
+    throw new ClientNotFound()
   }
 
   await db
@@ -84,7 +86,7 @@ export const deleteClientService = async (id: string) => {
     .where(EQ(schema.clients.id, id))
 
   if (!client) {
-    throw new Error('Client not found')
+    throw new ClientNotFound()
   }
 
   await db.delete(schema.clients).where(EQ(schema.clients.id, id)).execute()

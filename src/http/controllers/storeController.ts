@@ -15,6 +15,8 @@ import type {
   UpdateRequest,
   PublicDataRequest,
 } from '../types/requestsTypes.ts'
+import { EmailAlreadyExists } from '../../errors/emailAlreadyExists.ts'
+import { StoreAlreadyExists } from '../../errors/storeAlreadyExists.ts'
 
 export const createStoreController = async (
   request: CreateRequest,
@@ -22,9 +24,19 @@ export const createStoreController = async (
 ) => {
   const body = request.body
 
-  const store = await createStore(body)
+  try {
+    const store = await createStore(body)
 
-  return reply.status(201).send({ store })
+    return reply.status(201).send({ store })
+  } catch (error) {
+    if (
+      error instanceof EmailAlreadyExists ||
+      error instanceof StoreAlreadyExists
+    ) {
+      return reply.status(409).send(error.message)
+    }
+    throw error
+  }
 }
 
 export const updateStoreController = async (

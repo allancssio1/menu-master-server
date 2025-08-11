@@ -16,7 +16,6 @@ export const createOrderController = async (
   res: FastifyReply,
 ) => {
   const { body } = req
-  console.log('🚀 ~ createOrderController ~ body:', body)
   const order = await createOrder({ data: body, storeId: body.storeId })
   return res.status(201).send(order)
 }
@@ -26,10 +25,8 @@ export const getAllOrdersController = async (
   res: FastifyReply,
 ) => {
   const { user } = req
-  console.log('🚀 ~ getAllOrdersController ~ user:', user)
   const { sub } = user
   const orders = await getAllOrders({ storeId: sub })
-  console.log('🚀 ~ getAllOrdersController ~ orders:', orders)
   return res.status(200).send(orders)
 }
 

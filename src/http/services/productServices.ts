@@ -9,6 +9,7 @@ import { db } from '../../db/conection.ts'
 import { eq as EQ, and as AND } from 'drizzle-orm'
 import { Slug } from '../../lib/Slub.ts'
 import { ConvertPrice } from '../../lib/ConvertPrice.ts'
+import { StoreNotFound } from '../../errors/storeNotFound.ts'
 
 export const createProduct = async ({
   data,
@@ -23,7 +24,7 @@ export const createProduct = async ({
   })
 
   if (!storeFound) {
-    throw new Error('Store not found')
+    throw new StoreNotFound()
   }
 
   const productsError: CreateProductType = []
@@ -187,7 +188,7 @@ export const updateProduct = async ({
   })
 
   if (!storeFound) {
-    throw new Error('Store not found')
+    throw new StoreNotFound()
   }
 
   const productSlug = Slug.createSlugFromText(title)
@@ -242,7 +243,7 @@ export const getAllProductsByStore = async ({
   })
 
   if (!store) {
-    throw new Error('Store not found')
+    throw new StoreNotFound()
   }
 
   const products = await db.query.products.findMany({
@@ -275,7 +276,7 @@ export const getAllProductsByStoreId = async ({ id }: { id: string }) => {
   })
 
   if (!store) {
-    throw new Error('Store not found')
+    throw new StoreNotFound()
   }
 
   const products =

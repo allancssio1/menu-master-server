@@ -4,6 +4,8 @@ import { schema } from '../../db/schema/index.ts'
 import { db } from '../../db/conection.ts'
 import { eq as EQ, and as AND } from 'drizzle-orm'
 import type { CreateOrderItemType } from '../types/orderItemType.ts'
+import { StoreNotFound } from '../../errors/storeNotFound.ts'
+import { ClientNotFound } from '../../errors/clientNotFound.ts'
 
 export const createOrder = async ({
   data,
@@ -12,14 +14,12 @@ export const createOrder = async ({
   data: CreateOrderType
   storeId: string
 }) => {
-  console.log('🚀 ~ createOrder ~ storeId:', storeId)
-  console.log('🚀 ~ createOrder ~ data:', data)
   const storeFound = await db.query.stores.findFirst({
     where: (stores, { eq }) => eq(stores.id, storeId),
   })
 
   if (!storeFound) {
-    throw new Error('Store not found')
+    throw new StoreNotFound()
   }
 
   const clientFound = await db.query.clients.findFirst({
@@ -27,7 +27,7 @@ export const createOrder = async ({
   })
 
   if (!clientFound) {
-    throw new Error('Client not found')
+    throw new ClientNotFound()
   }
 
   const productPromises = data.products.map(
@@ -86,7 +86,7 @@ export const updateOrder = async ({
   })
 
   if (!storeFound) {
-    throw new Error('Store not found')
+    throw new StoreNotFound()
   }
 
   const orderFound = await db.query.orders.findFirst({
@@ -114,40 +114,50 @@ export const updateOrder = async ({
 }
 
 export const getAllOrders = async ({ storeId }: { storeId: string }) => {
-  console.log('🚀 ~ getAllOrders ~ storeId:', storeId)
   const storeFound = await db.query.stores.findFirst({
     where: (stores, { eq }) => eq(stores.id, storeId),
   })
-  console.log('🚀 ~ getAllOrders ~ storeFound:', storeFound)
 
   if (!storeFound) {
-    throw new Error('Store not found')
+    throw new StoreNotFound()
   }
 
   try {
     const orders = await db
       .select({
-        orderItemId: schema.orderItems.id,
-        orderId: schema.orderItems.orderId,
-        productId: schema.orderItems.productId,
-        amount: schema.orderItems.amount,
-        price: schema.orderItems.price,
-        // Outros campos que precisar
+        orderId: schema.orders.id,
+        clientId: schema.orders.clientId,
+        status: schema.orders.status,
+        reason: schema.orders.reason,
+        createdAt: schema.orders.createdAt,
+        updatedAt: schema.orders.updatedAt,
+        storeId: schema.orders.storeId,
       })
-      .from(schema.orderItems)
-      .innerJoin(schema.orders, EQ(schema.orderItems.orderId, schema.orders.id))
+      .from(schema.orders)
       .where(EQ(schema.orders.storeId, storeId))
-    // .query.orders.findMany({
-    //   where: EQ(schema.orders.storeId, storeId),
-    //   with: {
-    //     orderItems: true,
-    //   },
-    // })
-    console.log('🚀 ~ getAllOrders ~ orders:', orders)
 
-    return orders
-  } catch (error) {
-    console.log('🚀 ~ getAllOrders ~ error:', error)
+    const ordersWithItems = await Promise.all(
+      orders.map(async (order) => {
+        const orderItems = await db
+          .select({
+            orderItemId: schema.orderItems.id,
+            productId: schema.orderItems.productId,
+            amount: schema.orderItems.amount,
+            price: schema.orderItems.price,
+            decimals: schema.orderItems.decimals,
+          })
+          .from(schema.orderItems)
+          .where(EQ(schema.orderItems.orderId, order.orderId))
+
+        return {
+          ...order,
+          orderItems,
+        }
+      }),
+    )
+
+    return ordersWithItems
+  } catch (_error) {
     return []
   }
 }
@@ -164,7 +174,7 @@ export const getOrderById = async ({
   })
 
   if (!storeFound) {
-    throw new Error('Store not found')
+    throw new StoreNotFound()
   }
 
   const order = await db.query.orders.findFirst({

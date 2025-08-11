@@ -35,6 +35,9 @@ importers:
       zod:
         specifier: ^4.0.5
         version: 4.0.10
+      zod-validation-error:
+        specifier: 4.0.1
+        version: 4.0.1(zod@4.0.10)
     devDependencies:
       '@biomejs/biome':
         specifier: 2.0.6
@@ -1188,6 +1191,12 @@ packages:
     engines: {node: '>= 14.6'}
     hasBin: true
 
+  zod-validation-error@4.0.1:
+    resolution: {integrity: sha512-F3rdaCOHs5ViJ5YTz5zzRtfkQdMdIeKudJAoxy7yB/2ZMEHw73lmCAcQw11r7++20MyGl4WV59EVh7A9rNAyog==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      zod: ^3.25.0 || ^4.0.0
+
   zod@4.0.10:
     resolution: {integrity: sha512-3vB+UU3/VmLL2lvwcY/4RV2i9z/YU0DTV/tDuYjrwmx5WeJ7hwy+rGEEx8glHp6Yxw7ibRbKSaIFBgReRPe5KA==}
 
@@ -2126,5 +2135,9 @@ snapshots:
   xtend@4.0.2: {}
 
   yaml@2.8.0: {}
+
+  zod-validation-error@4.0.1(zod@4.0.10):
+    dependencies:
+      zod: 4.0.10
 
   zod@4.0.10: {}

@@ -4,29 +4,19 @@ import { db } from '../../db/conection.ts'
 import { Slug } from '../../lib/Slub.ts'
 import { eq as EQ } from 'drizzle-orm'
 import { createAccount } from './authService.ts'
+import { StoreNotFound } from '../../errors/storeNotFound.ts'
+import { EmailAlreadyExists } from '../../errors/emailAlreadyExists.ts'
+import { StoreAlreadyExists } from '../../errors/storeAlreadyExists.ts'
 
 export const createStore = async (data: CreateStoreType) => {
-  const {
-    address,
-    cnpj,
-    confirmPassword,
-    email,
-    name,
-    password,
-    phone,
-    responsibleName,
-  } = data
-
-  if (password !== confirmPassword) {
-    throw new Error('Passwords do not match')
-  }
+  const { address, cnpj, email, name, password, phone, responsibleName } = data
 
   const emailAlreadyExists = await db.query.auth.findFirst({
     where: (auth, { eq }) => eq(auth.username, email),
   })
 
   if (emailAlreadyExists) {
-    throw new Error('Email already exists')
+    throw new EmailAlreadyExists()
   }
 
   const slug = Slug.createSlugFromText(name)
@@ -37,7 +27,7 @@ export const createStore = async (data: CreateStoreType) => {
   })
 
   if (storeAlreadyExists) {
-    throw new Error('Store already exists')
+    throw new StoreAlreadyExists()
   }
 
   const authStore = await createAccount({
@@ -77,7 +67,7 @@ export const updateStore = async (
   })
 
   if (!storeFound) {
-    throw new Error('Store not found')
+    throw new StoreNotFound()
   }
 
   const slug = Slug.createSlugFromText(data.name ?? storeFound.name)
@@ -139,7 +129,7 @@ export const changeActiveStore = async (id: string) => {
   })
 
   if (!storeFound) {
-    throw new Error('Store not found')
+    throw new StoreNotFound()
   }
 
   await db
@@ -171,7 +161,7 @@ export const getBySlugStore = async (
   })
 
   if (!store) {
-    throw new Error('Store not found')
+    throw new StoreNotFound()
   }
 
   return {
@@ -202,7 +192,7 @@ export const getByIdStore = async (id: string) => {
   })
 
   if (!store) {
-    throw new Error('Store not found')
+    throw new StoreNotFound()
   }
 
   return store
