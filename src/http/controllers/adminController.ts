@@ -11,42 +11,32 @@ import {
   getStoresReport,
   getClientsReport,
 } from '../services/adminService.ts'
+import { StoreNotFound } from '../../errors/storeNotFound.ts'
+import { ClientNotFound } from '../../errors/clientNotFound.ts'
 
 export const getDashboardController = async (
-  request: FastifyRequest,
+  _request: FastifyRequest,
   reply: FastifyReply,
 ) => {
-  try {
-    const metrics = await getDashboardMetrics()
+  const metrics = await getDashboardMetrics()
 
-    return reply.status(200).send({
-      message: 'Dashboard metrics retrieved successfully',
-      data: metrics,
-    })
-  } catch (error) {
-    return reply.status(500).send({
-      message: 'Internal server error while fetching dashboard metrics',
-    })
-  }
+  return reply.status(200).send({
+    message: 'Dashboard metrics retrieved successfully',
+    data: metrics,
+  })
 }
 
 // Controladores de Lojas para Admin
 export const getAllStoresController = async (
-  request: FastifyRequest,
+  _request: FastifyRequest,
   reply: FastifyReply,
 ) => {
-  try {
-    const stores = await getAllStoresAdmin()
+  const stores = await getAllStoresAdmin()
 
-    return reply.status(200).send({
-      message: 'Stores retrieved successfully',
-      data: stores,
-    })
-  } catch (error) {
-    return reply.status(500).send({
-      message: 'Internal server error while fetching stores',
-    })
-  }
+  return reply.status(200).send({
+    message: 'Stores retrieved successfully',
+    data: stores,
+  })
 }
 
 export const getStoreByIdController = async (
@@ -62,14 +52,10 @@ export const getStoreByIdController = async (
       data: store,
     })
   } catch (error) {
-    if (error.message === 'Store not found') {
-      return reply.status(404).send({
-        message: 'Store not found',
-      })
+    if (error instanceof StoreNotFound) {
+      return reply.status(404).send(error.message)
     }
-    return reply.status(500).send({
-      message: 'Internal server error while fetching store',
-    })
+    throw error
   }
 }
 
@@ -91,14 +77,10 @@ export const updateStoreStatusController = async (
       data: result,
     })
   } catch (error) {
-    if (error.message === 'Store not found') {
-      return reply.status(404).send({
-        message: 'Store not found',
-      })
+    if (error instanceof StoreNotFound) {
+      return reply.status(404).send(error.message)
     }
-    return reply.status(500).send({
-      message: 'Internal server error while updating store status',
-    })
+    throw error
   }
 }
 
@@ -115,34 +97,24 @@ export const deleteStoreController = async (
       data: result,
     })
   } catch (error) {
-    if (error.message === 'Store not found') {
-      return reply.status(404).send({
-        message: 'Store not found',
-      })
+    if (error instanceof StoreNotFound) {
+      return reply.status(404).send(error.message)
     }
-    return reply.status(500).send({
-      message: 'Internal server error while deleting store',
-    })
+    throw error
   }
 }
 
 // Controladores de Clientes para Admin
 export const getAllClientsController = async (
-  request: FastifyRequest,
+  _request: FastifyRequest,
   reply: FastifyReply,
 ) => {
-  try {
-    const clients = await getAllClientsAdmin()
+  const clients = await getAllClientsAdmin()
 
-    return reply.status(200).send({
-      message: 'Clients retrieved successfully',
-      data: clients,
-    })
-  } catch (error) {
-    return reply.status(500).send({
-      message: 'Internal server error while fetching clients',
-    })
-  }
+  return reply.status(200).send({
+    message: 'Clients retrieved successfully',
+    data: clients,
+  })
 }
 
 export const getClientByIdController = async (
@@ -158,14 +130,10 @@ export const getClientByIdController = async (
       data: client,
     })
   } catch (error) {
-    if (error.message === 'Client not found') {
-      return reply.status(404).send({
-        message: 'Client not found',
-      })
+    if (error instanceof ClientNotFound) {
+      return reply.status(404).send(error.message)
     }
-    return reply.status(500).send({
-      message: 'Internal server error while fetching client',
-    })
+    throw error
   }
 }
 
@@ -189,50 +157,34 @@ export const deleteClientController = async (
       data: result,
     })
   } catch (error) {
-    if (error.message === 'Client not found') {
-      return reply.status(404).send({
-        message: 'Client not found',
-      })
+    if (error instanceof ClientNotFound) {
+      return reply.status(404).send(error.message)
     }
-    return reply.status(500).send({
-      message: 'Internal server error while deleting client',
-    })
+    throw error
   }
 }
 
 // Controladores de Relatórios
 export const getStoresReportController = async (
-  request: FastifyRequest,
+  _request: FastifyRequest,
   reply: FastifyReply,
 ) => {
-  try {
-    const report = await getStoresReport()
+  const report = await getStoresReport()
 
-    return reply.status(200).send({
-      message: 'Stores report retrieved successfully',
-      data: report,
-    })
-  } catch (error) {
-    return reply.status(500).send({
-      message: 'Internal server error while fetching stores report',
-    })
-  }
+  return reply.status(200).send({
+    message: 'Stores report retrieved successfully',
+    data: report,
+  })
 }
 
 export const getClientsReportController = async (
-  request: FastifyRequest,
+  _request: FastifyRequest,
   reply: FastifyReply,
 ) => {
-  try {
-    const report = await getClientsReport()
+  const report = await getClientsReport()
 
-    return reply.status(200).send({
-      message: 'Clients report retrieved successfully',
-      data: report,
-    })
-  } catch (error) {
-    return reply.status(500).send({
-      message: 'Internal server error while fetching clients report',
-    })
-  }
+  return reply.status(200).send({
+    message: 'Clients report retrieved successfully',
+    data: report,
+  })
 }

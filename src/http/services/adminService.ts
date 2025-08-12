@@ -1,19 +1,15 @@
 import { db } from '../../db/conection.ts'
 import { schema } from '../../db/schema/index.ts'
-import { count, sql, eq, desc } from 'drizzle-orm'
+import { count, sql, eq as EQ, desc } from 'drizzle-orm'
 import { StoreNotFound } from '../../errors/storeNotFound.ts'
 import { ClientNotFound } from '../../errors/clientNotFound.ts'
 
 export const getDashboardMetrics = async () => {
   // Contar total de lojas
-  const totalStores = await db
-    .select({ count: count() })
-    .from(schema.stores)
+  const totalStores = await db.select({ count: count() }).from(schema.stores)
 
   // Contar total de clientes
-  const totalClients = await db
-    .select({ count: count() })
-    .from(schema.clients)
+  const totalClients = await db.select({ count: count() }).from(schema.clients)
 
   // Contar total de produtos
   const totalProducts = await db
@@ -21,9 +17,7 @@ export const getDashboardMetrics = async () => {
     .from(schema.products)
 
   // Contar total de pedidos
-  const totalOrders = await db
-    .select({ count: count() })
-    .from(schema.orders)
+  const totalOrders = await db.select({ count: count() }).from(schema.orders)
 
   // Pedidos por status
   const ordersByStatus = await db
@@ -49,7 +43,10 @@ export const getDashboardMetrics = async () => {
       orderCount: count(),
     })
     .from(schema.orders)
-    .innerJoin(schema.stores, sql`${schema.orders.storeId} = ${schema.stores.id}`)
+    .innerJoin(
+      schema.stores,
+      sql`${schema.orders.storeId} = ${schema.stores.id}`,
+    )
     .groupBy(schema.orders.storeId, schema.stores.name)
     .orderBy(sql`COUNT(*) DESC`)
     .limit(5)
@@ -103,12 +100,12 @@ export const getStoreByIdAdmin = async (storeId: string) => {
   const totalProducts = await db
     .select({ count: count() })
     .from(schema.products)
-    .where(eq(schema.products.storeId, storeId))
+    .where(EQ(schema.products.storeId, storeId))
 
   const totalOrders = await db
     .select({ count: count() })
     .from(schema.orders)
-    .where(eq(schema.orders.storeId, storeId))
+    .where(EQ(schema.orders.storeId, storeId))
 
   const totalRevenue = await db
     .select({
@@ -116,7 +113,7 @@ export const getStoreByIdAdmin = async (storeId: string) => {
     })
     .from(schema.orderItems)
     .innerJoin(schema.orders, eq(schema.orders.id, schema.orderItems.orderId))
-    .where(eq(schema.orders.storeId, storeId))
+    .where(EQ(schema.orders.storeId, storeId))
 
   return {
     ...store,
@@ -137,7 +134,10 @@ export const getStoreByIdAdmin = async (storeId: string) => {
   }
 }
 
-export const updateStoreStatusAdmin = async (storeId: string, isActive: boolean) => {
+export const updateStoreStatusAdmin = async (
+  storeId: string,
+  isActive: boolean,
+) => {
   const store = await db.query.stores.findFirst({
     where: (stores, { eq }) => eq(stores.id, storeId),
   })
@@ -148,11 +148,11 @@ export const updateStoreStatusAdmin = async (storeId: string, isActive: boolean)
 
   await db
     .update(schema.stores)
-    .set({ 
+    .set({
       isActive,
       updatedAt: new Date(),
     })
-    .where(eq(schema.stores.id, storeId))
+    .where(EQ(schema.stores.id, storeId))
 
   return {
     id: storeId,
@@ -171,14 +171,10 @@ export const deleteStoreAdmin = async (storeId: string) => {
   }
 
   // Primeiro, deletar produtos associados
-  await db
-    .delete(schema.products)
-    .where(eq(schema.products.storeId, storeId))
+  await db.delete(schema.products).where(EQ(schema.products.storeId, storeId))
 
   // Depois, deletar a loja
-  await db
-    .delete(schema.stores)
-    .where(eq(schema.stores.id, storeId))
+  await db.delete(schema.stores).where(EQ(schema.stores.id, storeId))
 
   return {
     id: storeId,
@@ -220,7 +216,7 @@ export const getClientByIdAdmin = async (clientId: string) => {
   const totalOrders = await db
     .select({ count: count() })
     .from(schema.orders)
-    .where(eq(schema.orders.clientId, clientId))
+    .where(EQ(schema.orders.clientId, clientId))
 
   const totalSpent = await db
     .select({
@@ -228,7 +224,7 @@ export const getClientByIdAdmin = async (clientId: string) => {
     })
     .from(schema.orderItems)
     .innerJoin(schema.orders, eq(schema.orders.id, schema.orderItems.orderId))
-    .where(eq(schema.orders.clientId, clientId))
+    .where(EQ(schema.orders.clientId, clientId))
 
   // Pedidos recentes (últimos 5)
   const recentOrders = await db
@@ -240,10 +236,18 @@ export const getClientByIdAdmin = async (clientId: string) => {
       total: sql<number>`COALESCE(SUM(${schema.orderItems.price} * ${schema.orderItems.amount}), 0)`,
     })
     .from(schema.orders)
-    .innerJoin(schema.stores, eq(schema.stores.id, schema.orders.storeId))
-    .innerJoin(schema.orderItems, eq(schema.orderItems.orderId, schema.orders.id))
-    .where(eq(schema.orders.clientId, clientId))
-    .groupBy(schema.orders.id, schema.orders.status, schema.orders.createdAt, schema.stores.name)
+    .innerJoin(schema.stores, EQ(schema.stores.id, schema.orders.storeId))
+    .innerJoin(
+      schema.orderItems,
+      EQ(schema.orderItems.orderId, schema.orders.id),
+    )
+    .where(EQ(schema.orders.clientId, clientId))
+    .groupBy(
+      schema.orders.id,
+      schema.orders.status,
+      schema.orders.createdAt,
+      schema.stores.name,
+    )
     .orderBy(desc(schema.orders.createdAt))
     .limit(5)
 
@@ -279,7 +283,7 @@ export const deleteClientAdmin = async (clientId: string) => {
   const hasOrders = await db
     .select({ count: count() })
     .from(schema.orders)
-    .where(eq(schema.orders.clientId, clientId))
+    .where(EQ(schema.orders.clientId, clientId))
 
   if (hasOrders[0]?.count > 0) {
     return {
@@ -290,9 +294,7 @@ export const deleteClientAdmin = async (clientId: string) => {
   }
 
   // Deletar cliente se não tiver pedidos
-  await db
-    .delete(schema.clients)
-    .where(eq(schema.clients.id, clientId))
+  await db.delete(schema.clients).where(EQ(schema.clients.id, clientId))
 
   return {
     id: clientId,
@@ -324,14 +326,14 @@ export const getStoresReport = async () => {
       totalOrders: count(),
     })
     .from(schema.orders)
-    .innerJoin(schema.stores, eq(schema.stores.id, schema.orders.storeId))
+    .innerJoin(schema.stores, EQ(schema.stores.id, schema.orders.storeId))
     .groupBy(
       schema.orders.storeId,
       schema.stores.name,
       schema.stores.slug,
       schema.stores.city,
       schema.stores.state,
-      schema.stores.isActive
+      schema.stores.isActive,
     )
     .orderBy(desc(count()))
     .limit(10)
@@ -345,10 +347,15 @@ export const getStoresReport = async () => {
       totalRevenue: sql<number>`COALESCE(SUM(${schema.orderItems.price} * ${schema.orderItems.amount}), 0)`,
     })
     .from(schema.orders)
-    .innerJoin(schema.stores, eq(schema.stores.id, schema.orders.storeId))
-    .innerJoin(schema.orderItems, eq(schema.orderItems.orderId, schema.orders.id))
+    .innerJoin(schema.stores, EQ(schema.stores.id, schema.orders.storeId))
+    .innerJoin(
+      schema.orderItems,
+      EQ(schema.orderItems.orderId, schema.orders.id),
+    )
     .groupBy(schema.orders.storeId, schema.stores.name, schema.stores.slug)
-    .orderBy(sql`SUM(${schema.orderItems.price} * ${schema.orderItems.amount}) DESC`)
+    .orderBy(
+      sql`SUM(${schema.orderItems.price} * ${schema.orderItems.amount}) DESC`,
+    )
     .limit(10)
 
   // Distribuição por estados
@@ -364,8 +371,8 @@ export const getStoresReport = async () => {
   return {
     overview: {
       total: storesByStatus.reduce((acc, curr) => acc + curr.count, 0),
-      active: storesByStatus.find(s => s.isActive)?.count || 0,
-      inactive: storesByStatus.find(s => !s.isActive)?.count || 0,
+      active: storesByStatus.find((s) => s.isActive)?.count || 0,
+      inactive: storesByStatus.find((s) => !s.isActive)?.count || 0,
     },
     topStoresByOrders: topStoresByOrders || [],
     topStoresByRevenue: topStoresByRevenue || [],
@@ -385,13 +392,13 @@ export const getClientsReport = async () => {
       totalOrders: count(),
     })
     .from(schema.orders)
-    .innerJoin(schema.clients, eq(schema.clients.id, schema.orders.clientId))
+    .innerJoin(schema.clients, EQ(schema.clients.id, schema.orders.clientId))
     .groupBy(
       schema.orders.clientId,
       schema.clients.name,
       schema.clients.phone,
       schema.clients.city,
-      schema.clients.state
+      schema.clients.state,
     )
     .orderBy(desc(count()))
     .limit(10)
@@ -405,10 +412,15 @@ export const getClientsReport = async () => {
       totalSpent: sql<number>`COALESCE(SUM(${schema.orderItems.price} * ${schema.orderItems.amount}), 0)`,
     })
     .from(schema.orders)
-    .innerJoin(schema.clients, eq(schema.clients.id, schema.orders.clientId))
-    .innerJoin(schema.orderItems, eq(schema.orderItems.orderId, schema.orders.id))
+    .innerJoin(schema.clients, EQ(schema.clients.id, schema.orders.clientId))
+    .innerJoin(
+      schema.orderItems,
+      EQ(schema.orderItems.orderId, schema.orders.id),
+    )
     .groupBy(schema.orders.clientId, schema.clients.name, schema.clients.phone)
-    .orderBy(sql`SUM(${schema.orderItems.price} * ${schema.orderItems.amount}) DESC`)
+    .orderBy(
+      sql`SUM(${schema.orderItems.price} * ${schema.orderItems.amount}) DESC`,
+    )
     .limit(10)
 
   // Distribuição de clientes por estado
@@ -433,9 +445,7 @@ export const getClientsReport = async () => {
     .orderBy(desc(count()))
     .limit(10)
 
-  const totalClients = await db
-    .select({ count: count() })
-    .from(schema.clients)
+  const totalClients = await db.select({ count: count() }).from(schema.clients)
 
   return {
     overview: {
