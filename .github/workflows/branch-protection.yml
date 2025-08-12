@@ -1,0 +1,27 @@
+name: Branch Protection Enforcement
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  reject-direct-push:
+    name: Reject Direct Push to Protected Branches
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
+    
+    steps:
+      - name: Reject direct push to main
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "❌ Direct pushes to main branch are not allowed!"
+          echo "Please create a Pull Request from dev branch instead."
+          exit 1
+          
+      - name: Reject direct push to dev  
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          echo "❌ Direct pushes to dev branch are not allowed!"
+          echo "Please create a Pull Request from a feature branch instead."
+          exit 1

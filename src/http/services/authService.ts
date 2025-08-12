@@ -25,6 +25,15 @@ export const login = async ({
     throw new InvalidCredentials()
   }
 
+  // Se for ADMIN, retornar diretamente sem verificar loja
+  if (userAuth.role === 'ADMIN') {
+    return {
+      id: userAuth.id,
+      role: userAuth.role,
+    }
+  }
+
+  // Para STORE, verificar se tem loja associada
   const store = await db.query.stores.findFirst({
     where: (stores, { eq }) => eq(stores.userId, userAuth.id),
   })

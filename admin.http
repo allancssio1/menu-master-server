@@ -1,0 +1,129 @@
+@baseUrl = http://localhost:3333
+@adminToken = {{admin_login.response.body.$.access_token}}
+@storeId = {{get_all_stores.response.body.data.$[0].id}}
+@clientId = {{get_all_clients.response.body.$[0].id}}
+
+# Health Check Global
+GET {{baseUrl}}/health
+
+###
+
+# AUTH - Admin Creation (Temporary)
+
+# @name create_admin
+POST {{baseUrl}}/auth/create-admin
+Content-Type: application/json
+
+{
+  "username": "admin@menumaster.com",
+  "password": "admin123456"
+}
+
+###
+
+# @name admin_login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin@menumaster.com",
+  "password": "admin123456"
+}
+
+###
+
+# @name admin_logout
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{adminToken}}
+
+###
+
+# ADMIN ROUTES (Protected)
+
+# @name admin_health
+GET {{baseUrl}}/admin/health
+Authorization: Bearer {{adminToken}}
+
+###
+
+# @name admin_dashboard
+GET {{baseUrl}}/admin/dashboard
+Authorization: Bearer {{adminToken}}
+
+###
+
+# GERENCIAMENTO DE LOJAS
+
+# @name get_all_stores
+GET {{baseUrl}}/admin/stores
+Authorization: Bearer {{adminToken}}
+
+###
+
+# @name get_store_by_id
+GET {{baseUrl}}/admin/stores/{{storeId}}
+Authorization: Bearer {{adminToken}}
+
+###
+
+# @name activate_store
+PUT {{baseUrl}}/admin/stores/{{storeId}}/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "isActive": true
+}
+
+###
+
+# @name deactivate_store
+PUT {{baseUrl}}/admin/stores/{{storeId}}/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "isActive": false
+}
+
+###
+
+# @name delete_store
+DELETE {{baseUrl}}/admin/stores/{{storeId}}
+Authorization: Bearer {{adminToken}}
+
+###
+
+# GERENCIAMENTO DE CLIENTES
+
+# @name get_all_clients
+GET {{baseUrl}}/admin/clients
+Authorization: Bearer {{adminToken}}
+
+###
+
+# @name get_client_by_id
+GET {{baseUrl}}/admin/clients/{{clientId}}
+Authorization: Bearer {{adminToken}}
+
+###
+
+# @name delete_client
+DELETE {{baseUrl}}/admin/clients/{{clientId}}
+Authorization: Bearer {{adminToken}}
+
+###
+
+# RELATÓRIOS E MÉTRICAS
+
+# @name stores_report
+GET {{baseUrl}}/admin/reports/stores
+Authorization: Bearer {{adminToken}}
+
+###
+
+# @name clients_report
+GET {{baseUrl}}/admin/reports/clients
+Authorization: Bearer {{adminToken}}
+
+###

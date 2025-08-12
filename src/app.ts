@@ -12,6 +12,7 @@ import { env } from './env/index.ts'
 import { productRoutes } from './http/routes/productRoutes.ts'
 import { clientRoutes } from './http/routes/clientRoutes.ts'
 import { orderRoutes } from './http/routes/orderRoutes.ts'
+import { adminRoutes } from './http/routes/adminRoutes.ts'
 import { fromZodError } from 'zod-validation-error'
 import { ZodError } from 'zod/v4'
 
@@ -48,6 +49,9 @@ app.register(orderRoutes, {
 })
 app.register(clientRoutes, {
   prefix: 'client',
+})
+app.register(adminRoutes, {
+  prefix: 'admin',
 })
 
 app.setErrorHandler((error, _request, reply) => {

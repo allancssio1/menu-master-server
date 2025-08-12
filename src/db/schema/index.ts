@@ -5,6 +5,7 @@ import { auth } from './auth.ts'
 import { orders } from './order.ts'
 import { orderItems } from './orderItem.ts'
 import { clients } from './client.ts'
+import { adminAuditLog } from './adminAudit.ts'
 
 export const schema = {
   stores,
@@ -13,4 +14,5 @@ export const schema = {
   orders,
   orderItems,
   clients,
+  adminAuditLog,
 }
