@@ -2,7 +2,7 @@ import type { FastifyRequest } from 'fastify'
 import type { CreateStoreType, UpdateStoreType } from './storeTypes.ts'
 import type { CreateProductType, UpdateProductType } from './productTypes.ts'
 import type { CreateClientType, UpdateClientType } from './clientTypes.ts'
-import { CreateOrderType, UpdateOrderType } from './orderTypes.ts'
+import type { CreateOrderType, UpdateOrderType } from './orderTypes.ts'
 
 export type CreateRequest = FastifyRequest<{
   Body: CreateStoreType
