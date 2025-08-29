@@ -57,6 +57,9 @@ importers:
       ultracite:
         specifier: 5.0.32
         version: 5.0.32(@types/node@24.1.0)(yaml@2.8.0)
+      vitest:
+        specifier: 3.2.4
+        version: 3.2.4(@types/node@24.1.0)(yaml@2.8.0)
 
 packages:
 
