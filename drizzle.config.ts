@@ -7,6 +7,6 @@ export default defineConfig({
   schema: './src/db/schema/**.ts',
   out: './src/db/migrations',
   dbCredentials: {
-    url: env.DATABASE_URL,
+    url: `postgresql://${env.POSTGRES_USER}:${env.POSTGRES_PASSWORD}@${env.POSTGRES_HOST}:${env.POSTGRES_PORT}/${env.POSTGRES_DB}`,
   },
 })
