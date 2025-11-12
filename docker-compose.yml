@@ -1,12 +1,17 @@
 services:
   menu-master-pg:
-    image: postgres
-    environment:
-      POSTGRES_USER: docker
-      POSTGRES_PASSWORD: docker
-      POSTGRES_DB: menu-master-db
-      PGDATA: /data/postgres
+    image: bitnami/postgresql:16
+    container_name: menu-master-pg
+    restart: unless-stopped
     ports:
-      - 5432:5432
+      - '5432:5432'
+    environment:
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_DATABASE=${POSTGRES_DB}
     volumes:
-      - ./data/pg:/data/postgres
+      - menu_master_pg_data:/bitnami/postgresql
+
+volumes:
+  menu_master_pg_data:
+    driver: local
